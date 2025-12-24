@@ -4,23 +4,20 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
-    // PROSES REGISTER
-    public function register(Request $request)
-    {
+    // PROSES DAFTAR
+    public function register(Request $request) {
         $request->validate([
             'username' => 'required|unique:api_developers',
-            'password' => 'required',
+            'password' => 'required'
         ]);
 
-        $apiKey = Str::random(32); // Generate API Key otomatis
-
-        // User pertama jadi admin, selanjutnya user biasa
+        $apiKey = Str::random(32);
         $count = DB::table('api_developers')->count();
         $role = ($count == 0) ? 'admin' : 'user';
 
@@ -29,66 +26,48 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'api_key' => $apiKey,
             'role' => $role,
-            'daily_limit' => 100, // Limit default untuk member
+            'daily_limit' => 100,
             'request_count' => 0,
-            'created_at' => now(),
+            'created_at' => now()
         ]);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Berhasil daftar!',
-            'api_key' => $apiKey,
-            'role' => $role,
-        ]);
+        return response()->json(['status' => 'success', 'api_key' => $apiKey]);
     }
 
-    // PROSES LOGIN
-    public function login(Request $request)
-    {
+    // PROSES MASUK
+    public function login(Request $request) {
         $dev = DB::table('api_developers')->where('username', $request->username)->first();
-
         if ($dev && Hash::check($request->password, $dev->password)) {
-            // Simpan data ke session untuk akses web
             session([
-                'user_id' => $dev->id,
-                'role' => $dev->role,
-                'username' => $dev->username,
+                'user_id' => $dev->id, 
+                'role' => $dev->role, 
+                'username' => $dev->username
             ]);
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Login Berhasil',
-                'role' => $dev->role,
-                'redirect' => '/dashboard',
-            ]);
+            return response()->json(['status' => 'success', 'redirect' => '/dashboard']);
         }
-
-        return response()->json(['status' => 'error', 'message' => 'Username atau Password salah!'], 401);
+        return response()->json(['status' => 'error', 'message' => 'Login gagal!'], 401);
     }
 
-    // PROSES REVOKE KEY (GANTI KEY BARU)
-    public function revokeKey()
-    {
-        if (! session('user_id')) {
-            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 401);
+    // FUNGSI KEAMANAN: Show, Copy, & Revoke API Key
+    // Pastikan ini ada di dalam class AuthController { ... }
+public function verifyAction(Request $request) {
+    $request->validate(['password' => 'required', 'action' => 'required']);
+    $dev = DB::table('api_developers')->where('id', session('user_id'))->first();
+
+    if ($dev && Hash::check($request->password, $dev->password)) {
+        if ($request->action == 'revoke') {
+            $newKey = Str::random(32);
+            DB::table('api_developers')->where('id', session('user_id'))->update(['api_key' => $newKey]);
+            return response()->json(['status' => 'success', 'key' => $newKey]);
         }
-
-        $newKey = Str::random(32);
-        DB::table('api_developers')
-            ->where('id', session('user_id'))
-            ->update(['api_key' => $newKey]);
-
-        return response()->json([
-            'status' => 'success',
-            'new_key' => $newKey,
-        ]);
+        return response()->json(['status' => 'success', 'key' => $dev->api_key]);
     }
+    return response()->json(['status' => 'error', 'message' => 'Password salah!'], 403);
+}
 
-    // PROSES LOGOUT
-    public function logout()
-    {
-        session()->flush(); // Hapus semua session
-
+    // KELUAR SISTEM
+    public function logout() {
+        session()->flush();
         return redirect('/v1/login-page');
     }
 }
