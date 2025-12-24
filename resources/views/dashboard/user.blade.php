@@ -10,13 +10,17 @@
     <style>
         body { background-color: #0b0e14; color: #ffffff; }
         .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .gradient-pink { background: linear-gradient(90deg, #ff69b4, #da22ff); }
     </style>
 </head>
 <body class="font-sans min-h-screen">
 
     <nav class="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto w-full">
         <div class="text-2xl font-bold tracking-tighter">BIAN <span class="text-blue-500 italic">API</span></div>
-        <a href="/v1/logout" class="bg-red-500/10 text-red-500 border border-red-500/20 px-6 py-2 rounded-xl text-sm font-bold hover:bg-red-500 hover:text-white transition">Logout</a>
+        <div class="flex items-center gap-6">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Developer Mode</span>
+            <a href="/v1/logout" class="bg-red-500/10 text-red-500 border border-red-500/20 px-6 py-2 rounded-xl text-sm font-bold hover:bg-red-500 hover:text-white transition">Logout</a>
+        </div>
     </nav>
 
     <main class="max-w-6xl mx-auto px-8 py-10">
@@ -56,18 +60,39 @@
                 </div>
                 <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden mb-4">
                     @php 
-                        $percent = ($user->request_count / $user->daily_limit) * 100;
+                        $percent = ($user->daily_limit > 0) ? ($user->request_count / $user->daily_limit) * 100 : 0;
                     @endphp
                     <div class="bg-pink-500 h-full transition-all duration-1000" style="width: {{ $percent }}%"></div>
                 </div>
                 <p class="text-[10px] text-gray-500">Revoke key tidak akan mereset hitungan penggunaan limit Anda.</p>
             </div>
         </div>
+
+        <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <a href="/docs/v1" class="glass p-8 rounded-3xl flex items-center gap-6 hover:bg-white/5 transition group border border-white/5">
+                <div class="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500 text-2xl group-hover:scale-110 transition duration-300">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold text-white mb-1">API Documentation</h4>
+                    <p class="text-sm text-gray-500">Lihat panduan lengkap penggunaan endpoint v1.</p>
+                </div>
+            </a>
+
+            <div class="glass p-8 rounded-3xl flex items-center gap-6 border border-white/5">
+                <div class="w-16 h-16 rounded-2xl bg-pink-500/10 flex items-center justify-center text-pink-500 text-2xl">
+                    <i class="fas fa-history"></i>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold text-white mb-1">Total Hits</h4>
+                    <p class="text-sm text-gray-500">Anda telah melakukan <span class="text-pink-500 font-bold">{{ $user->request_count }}</span> permintaan ke server.</p>
+                </div>
+            </div>
+        </div>
     </main>
 
     <script>
         async function handleSecurity(action) {
-            // Pop-up Konfirmasi Password
             const { value: password } = await Swal.fire({
                 title: 'Konfirmasi Keamanan',
                 input: 'password',
@@ -97,18 +122,13 @@
                     
                     if (data.status === 'success') {
                         if (action === 'copy') {
-                            // Salin ke clipboard secara asinkron
                             await navigator.clipboard.writeText(data.key);
                             Swal.fire({ 
-                                icon: 'success', 
-                                title: 'Key Berhasil Disalin!', 
-                                background: '#0b0e14', 
-                                color: '#fff', 
-                                showConfirmButton: false, 
-                                timer: 1500 
+                                icon: 'success', title: 'Key Berhasil Disalin!', 
+                                background: '#0b0e14', color: '#fff', 
+                                showConfirmButton: false, timer: 1500 
                             });
                         } else {
-                            // Tampilkan key di layar
                             const display = document.getElementById('api-key-display');
                             display.innerText = data.key;
                             display.classList.remove('text-gray-600', 'tracking-widest');
@@ -116,30 +136,23 @@
                             
                             if (action === 'revoke') {
                                 Swal.fire({ 
-                                    icon: 'success', 
-                                    title: 'API Key Diperbarui!', 
+                                    icon: 'success', title: 'API Key Diperbarui!', 
                                     text: 'Gunakan key baru ini untuk request selanjutnya.',
-                                    background: '#0b0e14', 
-                                    color: '#fff' 
+                                    background: '#0b0e14', color: '#fff' 
                                 });
                             }
                         }
                     } else {
                         Swal.fire({ 
-                            icon: 'error', 
-                            title: 'Gagal!', 
-                            text: data.message, 
-                            background: '#0b0e14', 
-                            color: '#fff' 
+                            icon: 'error', title: 'Gagal!', 
+                            text: data.message, background: '#0b0e14', color: '#fff' 
                         });
                     }
                 } catch (err) {
                     Swal.fire({ 
-                        icon: 'error', 
-                        title: 'Error!', 
+                        icon: 'error', title: 'Error!', 
                         text: 'Terjadi kesalahan koneksi ke server.', 
-                        background: '#0b0e14', 
-                        color: '#fff' 
+                        background: '#0b0e14', color: '#fff' 
                     });
                 }
             }
