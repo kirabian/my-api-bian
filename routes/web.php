@@ -37,7 +37,7 @@ RateLimiter::for('api-limiter', function (Request $request) {
         return Limit::perMinute(100)->by($userId);
     }
 
-    // 3. Default Public Limit (Ditingkatkan ke 10 sesuai permintaan unlimited-ish)
+    // 3. Default Public Limit
     return Limit::perMinute(10)->by($request->ip());
 });
 
@@ -76,7 +76,7 @@ Route::get('/dashboard', [DashboardController::class, 'index']);
 
 /*
 |--------------------------------------------------------------------------
-| API Endpoints (Dengan Rate Limiting & Custom Error 429)
+| API Endpoints (Dengan Rate Limiting & Proxy)
 |--------------------------------------------------------------------------
 */
 
@@ -84,10 +84,12 @@ Route::middleware(['throttle:api-limiter'])->group(function () {
     Route::get('/v1/users', [UserController::class, 'index']);
     Route::get('/v1/prayer-times', [PrayerController::class, 'getTimes']);
     Route::get('/v1/info/gempa', [GempaController::class, 'getGempa']);
-    // Endpoint Masking Peta Gempa ke Domain Sendiri
     Route::get('/v1/info/gempa/map.jpg', [GempaController::class, 'getGempaMap']);
 
     // Endpoints Utility Tools Baru
     Route::get('/v1/tools/shorten', [ToolsController::class, 'shortenUrl']);
     Route::get('/v1/tools/ssweb', [ToolsController::class, 'screenshotWeb']);
+    
+    // Proxy Route untuk Masking URL Gambar Screenshot
+    Route::get('/v1/tools/ssweb/image.jpg', [ToolsController::class, 'getScreenshotImage']);
 });

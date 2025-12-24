@@ -199,8 +199,6 @@ axios.<span class="code-function">get</span>(<span class="code-string">'https://
   <span class="code-attr">"result"</span>: {
     <span class="code-attr">"waktu_kejadian"</span>: <span class="code-string">"24 Dec 2025 - 17:41:00 WIB"</span>,
     <span class="code-attr">"skala_magnitudo"</span>: <span class="code-string">"5.2 SR"</span>,
-    <span class="code-attr">"titik_lokasi"</span>: <span class="code-string">"Pusat gempa 77 km BaratDaya KAB-TASIKMALAYA"</span>,
-    <span class="code-attr">"peringatan"</span>: <span class="code-string">"Tidak berpotensi tsunami"</span>,
     <span class="code-attr">"peta_visual"</span>: <span class="code-string">"https://my-api-bian.absenps.com/v1/info/gempa/map.jpg"</span>
   }
 }</code></pre>
@@ -241,7 +239,7 @@ axios.<span class="code-function">get</span>(<span class="code-string">'https://
   <span class="code-attr">"status"</span>: <span class="code-keyword">200</span>,
   <span class="code-attr">"result"</span>: {
     <span class="code-attr">"target"</span>: <span class="code-string">"https://laravel.com"</span>,
-    <span class="code-attr">"image_url"</span>: <span class="code-string">"https://api.screenshotmachine.com/..."</span>
+    <span class="code-attr">"image_url"</span>: <span class="code-string">"https://my-api-bian.absenps.com/v1/tools/ssweb/image.jpg?url=https://laravel.com"</span>
   }
 }</code></pre>
                     </div>
