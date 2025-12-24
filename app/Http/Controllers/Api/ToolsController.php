@@ -5,43 +5,52 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class ToolsController extends Controller
 {
-    // 1. URL Shortener (Generate Link)
+    // 1. URL Shortener (DATABASE MANDIRI)
     public function shortenUrl(Request $request)
     {
         $url = $request->input('url');
         if (!$url) return response()->json(['status' => 400, 'message' => 'URL wajib diisi'], 400);
 
-        try {
-            $response = Http::get("https://tinyurl.com/api-create.php?url=" . urlencode($url));
-            $short = $response->body();
-            
-            // Mengambil kode unik di ujung link (misal: mbq3m)
-            $code = str_replace('https://tinyurl.com/', '', $short);
-            
-            // Link baru menggunakan domain Bian API
-            $customShort = url("/go/{$code}");
-
-            return response()->json([
-                'status' => 200,
-                'creator' => 'BIAN DEVELOPER STUDIO',
-                'result' => [
-                    'original' => $url,
-                    'short' => $customShort
-                ]
+        // Cek apakah URL ini sudah pernah di-short sebelumnya agar tidak duplikat
+        $exists = DB::table('short_links')->where('original_url', $url)->first();
+        
+        if ($exists) {
+            $code = $exists->code;
+        } else {
+            // Buat kode unik acak (misal: aB12c)
+            $code = Str::random(6);
+            DB::table('short_links')->insert([
+                'original_url' => $url,
+                'code' => $code,
+                'created_at' => now()
             ]);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 500, 'message' => 'Gagal memproses'], 500);
         }
+
+        return response()->json([
+            'status' => 200,
+            'creator' => 'BIAN DEVELOPER STUDIO',
+            'result' => [
+                'original' => $url,
+                'short' => url("/go/{$code}") // Hasil murni link web kamu
+            ]
+        ]);
     }
 
-    // 2. Fungsi Eksekusi Redirect (Agar link /go/ bisa dibuka)
+    // 2. Fungsi Eksekusi Redirect (Pindah ke link asli)
     public function handleRedirect($code)
     {
-        // Mengembalikan link ke TinyURL asli di latar belakang agar user dipindahkan
-        return redirect()->away("https://tinyurl.com/{$code}");
+        $data = DB::table('short_links')->where('code', $code)->first();
+
+        if ($data) {
+            return redirect()->away($data->original_url);
+        }
+
+        return response()->view('errors.404', [], 404);
     }
 
     // 3. Website Screenshot JSON
@@ -69,13 +78,11 @@ class ToolsController extends Controller
         try {
             $targetUrl = base64_decode($encodedUrl);
             $externalUrl = "https://api.s-shot.ru/1024x768/JPEG/1024/Z100/?" . $targetUrl;
-            
             $imageResponse = Http::timeout(50)->get($externalUrl);
 
             if($imageResponse->successful()){
                 return response($imageResponse->body())->header('Content-Type', 'image/jpeg');
             }
-            
             return response()->json(['message' => 'Engine sibuk'], 503);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error'], 500);
