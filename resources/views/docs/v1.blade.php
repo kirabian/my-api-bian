@@ -35,7 +35,10 @@
         .sidebar-hidden { transform: translateX(-100%); }
         .sidebar-visible { transform: translateX(0); }
         .overlay { background: rgba(0,0,0,0.5); position: fixed; inset: 0; z-index: 80; display: none; }
-        .sidebar-link.active { color: #2563eb; font-weight: 700; border-left: 3px solid #2563eb; padding-left: 1rem; }
+        
+        /* Sidebar Link Styling */
+        .sidebar-link { transition: all 0.2s; border-left: 3px solid transparent; }
+        .sidebar-link.active { color: #2563eb !important; font-weight: 800; border-left: 3px solid #2563eb; padding-left: 1rem; background: linear-gradient(90deg, rgba(37,99,235,0.05) 0%, transparent 100%); }
         
         @media (max-width: 1024px) {
             #sidebar { width: 280px; z-index: 100; position: fixed; height: 100vh; top: 0; }
@@ -50,7 +53,7 @@
         <div class="flex items-center gap-2">
             <button onclick="toggleSidebar()" class="lg:hidden text-slate-600 p-2"><i class="fas fa-bars"></i></button>
             <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold italic shadow-lg shadow-blue-500/30">B</div>
-            <div class="font-extrabold text-xl tracking-tighter text-slate-900">BIAN <span class="text-blue-600 italic font-medium">API DOCS</span></div>
+            <div class="font-extrabold text-xl tracking-tighter">BIAN <span class="text-blue-600 italic font-medium">API DOCS</span></div>
         </div>
         <div class="flex gap-4">
             @if($user)
@@ -62,8 +65,8 @@
     </header>
 
     <div class="flex pt-20">
-        <nav id="sidebar" class="sidebar-hidden lg:sidebar-visible w-72 fixed lg:static bg-white border-r p-8 overflow-y-auto">
-            <div class="mb-10 text-slate-900">
+        <nav id="sidebar" class="sidebar-hidden lg:sidebar-visible w-72 fixed lg:sticky lg:top-20 h-[calc(100vh-80px)] bg-white border-r p-8 overflow-y-auto">
+            <div class="mb-10">
                 <h3 class="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest mb-5">Dokumentasi</h3>
                 <ul class="space-y-4 text-sm font-medium nav-list">
                     <li><a href="#intro" class="sidebar-link block text-slate-500 py-1">Introduction</a></li>
@@ -71,31 +74,31 @@
                     <li><a href="#how-to-use" class="sidebar-link block text-slate-500 py-1">Integrasi Key</a></li>
                 </ul>
             </div>
-            <div class="text-slate-900">
+            <div>
                 <h3 class="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest mb-5">Endpoints v1</h3>
                 <ul class="space-y-4 text-sm font-medium nav-list">
                     <li><a href="#users" class="sidebar-link block text-slate-500 py-1">Get Users List</a></li>
-                    <li><a href="#prayer" class="sidebar-link block text-slate-500 py-1 font-bold text-blue-600 active">Prayer Times</a></li>
+                    <li><a href="#prayer" class="sidebar-link block text-slate-500 py-1">Global Prayer Times</a></li>
                 </ul>
             </div>
         </nav>
 
-        <main class="flex-1 p-6 md:p-12 lg:p-20 max-w-full overflow-hidden text-slate-900">
+        <main class="flex-1 p-6 md:p-12 lg:p-20 max-w-full overflow-hidden">
             
             <section id="intro" class="mb-20 scroll-mt-24">
-                <h1 class="text-4xl md:text-6xl font-extrabold mb-8 tracking-tighter text-slate-900 leading-tight">Solusi Data <span class="text-blue-600">Developer.</span></h1>
+                <h1 class="text-4xl md:text-6xl font-extrabold mb-8 tracking-tighter">Solusi Data <span class="text-blue-600">Developer.</span></h1>
                 <p class="text-slate-500 text-base md:text-xl max-w-3xl leading-relaxed">Dokumentasi resmi integrasi Bian API. Mendukung berbagai bahasa pemrograman untuk kemudahan skalabilitas.</p>
             </section>
 
             <section id="rate-limit" class="mb-20 scroll-mt-24">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-white p-6 rounded-3xl border border-slate-200">
+                    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
                         <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Public Access</p>
-                        <p class="text-3xl font-black text-slate-900">5 <span class="text-xs font-normal">Req/Min</span></p>
+                        <p class="text-3xl font-black">5 <span class="text-xs font-normal text-slate-400">Req/Min</span></p>
                     </div>
                     <div class="bg-white p-6 rounded-3xl border-2 border-blue-600 shadow-xl shadow-blue-500/5">
                         <p class="text-[10px] font-bold text-blue-600 uppercase mb-2">Member Access</p>
-                        <p class="text-3xl font-black text-slate-900">100 <span class="text-xs font-normal">Req/Min</span></p>
+                        <p class="text-3xl font-black">100 <span class="text-xs font-normal text-slate-400">Req/Min</span></p>
                     </div>
                 </div>
             </section>
@@ -108,7 +111,7 @@
                         <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
                             <i class="fab fa-node-js text-green-600 text-lg"></i> Node.js (Axios)
                         </p>
-                        <div class="relative">
+                        <div class="relative group">
                             <button class="copy-btn" onclick="copyCode(this)">Copy</button>
 <pre><code><span class="code-keyword">const</span> axios = <span class="code-keyword">require</span>(<span class="code-string">'axios'</span>);
 
@@ -124,7 +127,7 @@ axios.<span class="code-function">get</span>(<span class="code-string">'https://
                         <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
                             <i class="fab fa-php text-indigo-600 text-lg"></i> PHP (cURL)
                         </p>
-                        <div class="relative">
+                        <div class="relative group">
                             <button class="copy-btn" onclick="copyCode(this)">Copy</button>
 <pre><code><span class="code-variable">$apiKey</span> = <span class="code-string">"YOUR_KEY"</span>;
 <span class="code-variable">$ch</span> = <span class="code-function">curl_init</span>(<span class="code-string">"https://my-api-bian.absenps.com/v1/prayer-times?city=Jakarta"</span>);
@@ -139,7 +142,7 @@ axios.<span class="code-function">get</span>(<span class="code-string">'https://
                         <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
                             <i class="fab fa-google text-blue-500 text-lg"></i> Golang (http)
                         </p>
-                        <div class="relative">
+                        <div class="relative group">
                             <button class="copy-btn" onclick="copyCode(this)">Copy</button>
 <pre><code><span class="code-keyword">req</span>, _ := http.<span class="code-function">NewRequest</span>(<span class="code-string">"GET"</span>, <span class="code-string">"https://my-api-bian.absenps.com/v1/users"</span>, nil)
 <span class="code-keyword">req</span>.Header.<span class="code-function">Set</span>(<span class="code-string">"X-BIAN-KEY"</span>, <span class="code-string">"YOUR_API_KEY"</span>)
@@ -155,13 +158,13 @@ resp, _ := client.<span class="code-function">Do</span>(req)
             <section id="users" class="mb-24 scroll-mt-24 p-8 md:p-12 bg-white rounded-[3rem] border border-slate-200">
                 <div class="flex items-center gap-3 mb-6">
                     <span class="bg-emerald-500 text-white px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase">Get</span>
-                    <h2 class="text-2xl font-extrabold tracking-tight text-slate-900">Get Users List</h2>
+                    <h2 class="text-2xl font-extrabold tracking-tight">Get Users List</h2>
                 </div>
                 <p class="text-slate-500 mb-8">Mengambil daftar pengembang terdaftar pada sistem Bian API.</p>
                 <div class="bg-slate-900 p-5 rounded-2xl mb-8 flex items-center justify-between border border-white/5 overflow-x-auto">
                     <code class="text-blue-400 font-medium text-xs md:text-sm whitespace-nowrap">/v1/users</code>
                 </div>
-                <div class="relative">
+                <div class="relative group">
                     <button class="copy-btn" onclick="copyCode(this)">Copy JSON</button>
 <pre><code>{
   <span class="code-attr">"status"</span>: <span class="code-string">"success"</span>,
@@ -179,9 +182,9 @@ resp, _ := client.<span class="code-function">Do</span>(req)
                 </div>
                 <p class="text-slate-500 mb-8">Akses jadwal ibadah global dengan skema data kustom yang disamarkan.</p>
                 <div class="bg-slate-900 p-5 rounded-2xl mb-8 flex items-center justify-between overflow-x-auto border border-white/5">
-                    <code class="text-blue-400 font-medium text-xs md:text-sm whitespace-nowrap">/v1/prayer-times?city=Jakarta&country=Indonesia</code>
+                    <code class="text-blue-400 font-medium text-xs md:text-sm whitespace-nowrap">/v1/prayer-times?city=Jakarta</code>
                 </div>
-                <div class="relative">
+                <div class="relative group">
                     <button class="copy-btn" onclick="copyCode(this)">Copy JSON</button>
 <pre><code>{
   <span class="code-attr">"status"</span>: <span class="code-keyword">200</span>,
@@ -200,7 +203,6 @@ resp, _ := client.<span class="code-function">Do</span>(req)
     </div>
 
     <script>
-        // SIDEBAR TOGGLE
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
         
@@ -212,20 +214,33 @@ resp, _ := client.<span class="code-function">Do</span>(req)
 
         overlay.addEventListener('click', toggleSidebar);
 
-        // Close sidebar on link click (Mobile)
-        document.querySelectorAll('.nav-list a').forEach(link => {
-            link.addEventListener('click', () => {
-                if(window.innerWidth < 1024) toggleSidebar();
+        // Logic Auto-Active Sidebar Link
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.sidebar-link');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 120) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
             });
         });
 
-        // Copy Function
         function copyCode(btn) {
             const code = btn.parentElement.querySelector('code').innerText;
             navigator.clipboard.writeText(code).then(() => {
-                const originalText = btn.innerText;
+                const original = btn.innerText;
                 btn.innerText = 'Copied!';
-                setTimeout(() => btn.innerText = originalText, 2000);
+                setTimeout(() => btn.innerText = original, 2000);
             });
         }
     </script>
