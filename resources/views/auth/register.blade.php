@@ -3,48 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - API Dashboard 💕</title>
+    <title>Register - Bian API</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #0b0e14; color: #ffffff; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+    </style>
 </head>
-<body class="bg-[#FFD1DC] flex items-center justify-center min-h-screen">
-    <div class="bg-white p-10 rounded-[40px] shadow-2xl w-full max-w-sm text-center">
-        <h2 class="text-[#FF69B4] text-3xl font-black mb-6">Register 💕</h2>
-        <div id="message" class="hidden mb-4 p-3 rounded-xl text-sm"></div>
-        
-        <form id="regForm" class="space-y-4">
-            <input type="text" name="username" placeholder="Username Baru" required 
-                class="w-full p-4 rounded-2xl border-2 border-pink-100 outline-none focus:border-[#FF69B4] transition">
-            <input type="password" name="password" placeholder="Password Baru" required 
-                class="w-full p-4 rounded-2xl border-2 border-pink-100 outline-none focus:border-[#FF69B4] transition">
-            <button type="submit" 
-                class="w-full p-4 bg-[#FF69B4] text-white font-bold rounded-2xl hover:bg-[#F6418C] shadow-lg shadow-pink-200 transition">
-                DAFTAR SEKARANG
-            </button>
-        </form>
-        <p class="mt-6 text-gray-400 text-sm">Sudah punya akun? <a href="/v1/login-page" class="text-[#FF69B4] font-bold">Login</a></p>
+<body class="flex items-center justify-center min-h-screen p-6">
+
+    <div class="w-full max-w-md">
+        <div class="text-center mb-10">
+            <a href="/" class="text-3xl font-bold tracking-tighter text-blue-500">
+                BIAN <span class="text-white italic">API</span>
+            </a>
+            <h1 class="text-xl font-bold mt-2">Daftar Developer Baru</h1>
+        </div>
+
+        <div class="glass p-8 rounded-3xl shadow-2xl">
+            <form action="/v1/register" method="POST" class="space-y-5">
+                @csrf
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Username</label>
+                    <input type="text" name="username" required 
+                        class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 focus:outline-none focus:border-blue-500 transition text-sm"
+                        placeholder="Pilih username unik">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Email</label>
+                    <input type="email" name="email" required 
+                        class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 focus:outline-none focus:border-blue-500 transition text-sm"
+                        placeholder="email@example.com">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Password</label>
+                    <input type="password" name="password" required 
+                        class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 focus:outline-none focus:border-blue-500 transition text-sm"
+                        placeholder="Minimal 8 karakter">
+                </div>
+
+                <div class="flex items-center gap-3 bg-blue-500/10 p-4 rounded-xl border border-blue-500/20">
+                    <i class="fas fa-info-circle text-blue-400"></i>
+                    <p class="text-[11px] text-gray-400">Dengan mendaftar, Anda menyetujui batas limit 100 req/min untuk member.</p>
+                </div>
+
+                <button type="submit" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-pink-900/40 transition">
+                    Create My Account
+                </button>
+            </form>
+
+            <div class="mt-8 pt-6 border-t border-white/5 text-center text-sm">
+                <p class="text-gray-400">Sudah punya akun? <a href="/v1/login-page" class="text-pink-400 font-bold hover:underline">Login disini</a></p>
+            </div>
+        </div>
     </div>
 
-    <script>
-        document.getElementById('regForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const msgDiv = document.getElementById('message');
-            
-            const response = await fetch('/v1/register', {
-                method: 'POST',
-                body: JSON.stringify(Object.fromEntries(formData)),
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
-            });
-
-            const result = await response.json();
-            if (response.ok) {
-                msgDiv.className = "mb-4 p-3 rounded-xl text-sm bg-green-100 text-green-600 block";
-                msgDiv.innerText = "Pendaftaran berhasil! Silakan login.";
-            } else {
-                msgDiv.className = "mb-4 p-3 rounded-xl text-sm bg-red-100 text-red-600 block";
-                msgDiv.innerText = result.message || "Username sudah terdaftar.";
-            }
-        });
-    </script>
 </body>
 </html>
