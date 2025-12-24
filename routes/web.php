@@ -90,6 +90,6 @@ Route::middleware(['throttle:api-limiter'])->group(function () {
     Route::get('/v1/tools/shorten', [ToolsController::class, 'shortenUrl']);
     Route::get('/v1/tools/ssweb', [ToolsController::class, 'screenshotWeb']);
     
-    // Proxy Gambar - Harus didefinisikan dengan benar
-    Route::get('/v1/tools/ssweb/image.jpg', [ToolsController::class, 'getScreenshotImage']);
+    // Proxy Gambar Baru - Menggunakan Path Parameter agar tidak tertukar
+    Route::get('/v1/tools/ssweb/view/{encodedUrl}/image.jpg', [ToolsController::class, 'getScreenshotImage']);
 });
