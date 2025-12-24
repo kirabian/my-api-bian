@@ -45,10 +45,9 @@ Route::post('/v1/register', [AuthController::class, 'register']);
 Route::post('/v1/login', [AuthController::class, 'login']);
 Route::get('/v1/logout', [AuthController::class, 'logout']);
 
+// Hapus Route::post('/v1/revoke-key', ...);
+// Gunakan ini saja sebagai gerbang utama keamanan:
 Route::post('/v1/verify-action', [AuthController::class, 'verifyAction']);
-
-// Fitur Revoke Key (Ganti API Key baru)
-Route::post('/v1/revoke-key', [AuthController::class, 'revokeKey']);
 
 // HALAMAN UI (Tampilan Form Login & Register)
 Route::get('/v1/login-page', function () {
