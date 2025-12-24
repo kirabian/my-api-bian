@@ -12,16 +12,16 @@
         .gradient-text { background: linear-gradient(90deg, #ff69b4, #00d2ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     </style>
 </head>
-<body class="font-sans">
+<body class="font-sans flex flex-col min-h-screen">
 
-    <nav class="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
+    <nav class="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto w-full">
         <div class="text-2xl font-bold tracking-tighter">
             BIAN <span class="text-blue-500 italic">API</span>
         </div>
         <div class="hidden md:flex space-x-8 text-sm font-medium text-gray-400">
-            <a href="#docs" class="hover:text-white transition">Documentation <span class="text-xs align-top">v1</span></a>
+            <a href="/docs/v1" class="hover:text-white transition">Documentation <span class="text-xs align-top">v1</span></a>
             <a href="#" class="hover:text-white transition">Features</a>
-            <a href="#" class="hover:text-white transition">How it works</a>
+            <a href="#" class="hover:text-white transition">Support</a>
         </div>
         <div class="flex items-center space-x-4">
             @if($user)
@@ -33,7 +33,7 @@
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto px-8 py-20 flex flex-col lg:flex-row items-center gap-12">
+    <main class="max-w-7xl mx-auto px-8 py-20 flex flex-col lg:flex-row items-center gap-12 flex-grow">
         
         <div class="flex-1 space-y-8">
             <div class="inline-block px-4 py-1 rounded-full border border-pink-500/30 text-pink-500 text-xs font-bold bg-pink-500/10">
@@ -45,82 +45,60 @@
             </h1>
             
             <p class="text-gray-400 text-lg max-w-lg leading-relaxed">
-                Bian API adalah penyedia data terbuka (Open Source) untuk komunitas pengembang. 
-                Cepat, aman, dan mudah diintegrasikan. — <span class="italic">By BianDev.</span>
+                Penyedia data terbuka untuk komunitas pengembang. Cepat, aman, dan tanpa biaya berlangganan.
             </p>
 
             <div class="flex flex-wrap gap-3">
                 <span class="glass px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2">
-                    <i class="fas fa-server text-blue-400"></i> REST API
-                </span>
-                <span class="glass px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2">
                     <i class="fas fa-bolt text-yellow-400"></i> AUTH-LESS
                 </span>
-                <span class="glass px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2">
-                    <i class="fas fa-users text-pink-400"></i> 15+ INTEGRATIONS
+                <span class="glass px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 text-pink-400">
+                    5 REQ/MIN PUBLIC
                 </span>
-                <span class="glass px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2">
-                    <i class="fas fa-chart-line text-green-400"></i> 100K+ REQUESTS / MONTH
+                <span class="glass px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 text-blue-400">
+                    100 REQ/MIN MEMBER
                 </span>
             </div>
 
             <div class="flex gap-4 pt-4">
-                <button class="bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-xl font-bold transition">Learn more</button>
-                <button class="border border-white/20 hover:bg-white/5 px-8 py-3 rounded-xl font-bold transition flex items-center gap-2">
-                    <i class="fas fa-arrow-right text-xs"></i> Get started
-                </button>
+                <a href="/docs/v1" class="bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-xl font-bold transition">Learn more</a>
+                <a href="/docs/v1" class="border border-white/20 hover:bg-white/5 px-8 py-3 rounded-xl font-bold transition flex items-center gap-2">
+                    Get started <i class="fas fa-arrow-right text-xs"></i>
+                </a>
             </div>
         </div>
 
         <div class="flex-1 w-full lg:max-w-xl">
             <div class="glass rounded-3xl overflow-hidden shadow-2xl">
-                <div class="bg-white/5 px-6 py-4 flex items-center justify-between border-b border-white/10">
-                    <div class="flex items-center gap-2 text-xs font-bold text-green-400">
+                <div class="bg-white/5 px-6 py-4 flex items-center justify-between border-b border-white/10 text-xs">
+                    <div class="flex items-center gap-2 text-green-400">
                         <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> GET
-                        <span class="text-gray-400">https://my-api-bian.absenps.com/v1/users</span>
+                        <span class="text-gray-400">/v1/users</span>
                     </div>
-                    <span class="text-xs text-gray-500">200 OK - 124ms</span>
                 </div>
-                <div class="p-6 font-mono text-xs text-blue-300 leading-relaxed overflow-x-auto">
+                <div class="p-6 font-mono text-xs text-blue-300 leading-relaxed">
                     <pre>
 {
   "status": "success",
   "data": [
-    {
-      "id": 1,
-      "username": "bian_dev",
-      "role": "admin",
-      "status": "active"
-    },
-    {
-      "id": 2,
-      "username": "member_01",
-      "role": "user",
-      "status": "active"
-    }
+    { "id": 1, "username": "bian", "role": "admin" },
+    { "id": 2, "username": "user1", "role": "user" }
   ]
 }</pre>
                 </div>
             </div>
-            
-            <div class="mt-6 flex justify-center gap-4">
-                <div class="w-24 h-32 glass rounded-2xl animate-bounce" style="animation-duration: 3s;"></div>
-                <div class="w-24 h-32 glass rounded-2xl animate-bounce" style="animation-duration: 4s;"></div>
-                <div class="w-24 h-32 glass rounded-2xl animate-bounce" style="animation-duration: 5s;"></div>
-            </div>
         </div>
     </main>
 
-    <footer class="mt-auto border-t border-white/5 py-8">
+    <footer class="mt-auto border-t border-white/5 py-8 bg-black/20">
         <div class="max-w-7xl mx-auto px-8 flex flex-wrap justify-between items-center text-[10px] uppercase tracking-widest text-gray-500 font-bold">
             <div class="flex space-x-8">
                 <span>SUPPORTERS</span>
-                <span class="text-white">AARON</span>
-                <span class="text-white">BOBBY</span>
                 <span class="text-white">BIAN</span>
+                <span class="text-white">AARON</span>
             </div>
             <div>
-                BIAN'S DEVELOPMENT IS POWERED BY <span class="text-pink-500">LARAVEL</span>
+                POWERED BY <span class="text-pink-500">LARAVEL v10</span>
             </div>
         </div>
     </footer>
