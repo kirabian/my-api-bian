@@ -86,10 +86,10 @@ Route::middleware(['throttle:api-limiter'])->group(function () {
     Route::get('/v1/info/gempa', [GempaController::class, 'getGempa']);
     Route::get('/v1/info/gempa/map.jpg', [GempaController::class, 'getGempaMap']);
 
-    // Endpoints Utility Tools Baru
+    // Endpoints Tools
     Route::get('/v1/tools/shorten', [ToolsController::class, 'shortenUrl']);
     Route::get('/v1/tools/ssweb', [ToolsController::class, 'screenshotWeb']);
     
-    // Proxy Route untuk Masking URL Gambar Screenshot
+    // Proxy Image Route - FIX
     Route::get('/v1/tools/ssweb/image.jpg', [ToolsController::class, 'getScreenshotImage']);
 });
