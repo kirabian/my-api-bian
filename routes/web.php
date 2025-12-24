@@ -83,4 +83,6 @@ Route::middleware(['throttle:api-limiter'])->group(function () {
     Route::get('/v1/users', [UserController::class, 'index']);
     Route::get('/v1/prayer-times', [PrayerController::class, 'getTimes']);
     Route::get('/v1/info/gempa', [GempaController::class, 'getGempa']);
+    // Endpoint Masking Peta Gempa ke Domain Sendiri
+    Route::get('/v1/info/gempa/map.jpg', [GempaController::class, 'getGempaMap']);
 });

@@ -14,7 +14,7 @@ class GempaController extends Controller
     {
         $apiKey = $request->header('X-BIAN-KEY');
 
-        // 1. Hitung Limit jika menggunakan API Key
+        // 1. Hitung Limit Penggunaan
         if ($apiKey) {
             $user = DB::table('api_developers')->where('api_key', $apiKey)->first();
             if ($user) {
@@ -22,8 +22,8 @@ class GempaController extends Controller
             }
         }
 
-        // 2. Cache data selama 5 menit agar tidak terus-menerus hit BMKG
-        $data = Cache::remember('info_gempa_bian', 300, function () {
+        // 2. Ambil data (Cache dikurangi ke 60 detik agar lebih akurat dengan BMKG)
+        $data = Cache::remember('info_gempa_bian_v2', 60, function () {
             return $this->fetchBmkgData();
         });
 
@@ -38,22 +38,38 @@ class GempaController extends Controller
             'result' => $data,
             'server_info' => [
                 'last_update' => now()->toDateTimeString(),
-                'limit_info' => $apiKey ? '100/min' : '10/min'
+                'cache_status' => 'Hit/Live'
             ]
         ]);
+    }
+
+    // Fungsi baru untuk Masking URL Gambar ke domain sendiri
+    public function getGempaMap()
+    {
+        try {
+            $response = Http::get("https://data.bmkg.go.id/DataMKG/TEWS/autogempa.xml");
+            if ($response->successful()) {
+                $xml = simplexml_load_string($response->body());
+                $mapFileName = (string) $xml->gempa->Shakemap;
+                $mapUrl = "https://data.bmkg.go.id/DataMKG/TEWS/" . $mapFileName;
+
+                $imageContent = Http::get($mapUrl)->body();
+                return response($imageContent)->header('Content-Type', 'image/jpeg');
+            }
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Peta tidak tersedia'], 404);
+        }
     }
 
     private function fetchBmkgData()
     {
         try {
-            // Ambil data XML dari BMKG (Gratis & Terpercaya)
-            $response = Http::get("https://data.bmkg.go.id/DataMKG/TEWS/autogempa.xml");
+            $response = Http::withoutVerifying()->get("https://data.bmkg.go.id/DataMKG/TEWS/autogempa.xml");
 
             if ($response->successful()) {
                 $xml = simplexml_load_string($response->body());
                 $gempa = $xml->gempa;
 
-                // Transformasi ke format BIAN API (Masking)
                 return [
                     'waktu_kejadian' => (string) $gempa->Tanggal . ' - ' . (string) $gempa->Jam,
                     'skala_magnitudo' => (string) $gempa->Magnitude . ' SR',
@@ -62,7 +78,8 @@ class GempaController extends Controller
                     'titik_lokasi' => (string) $gempa->Wilayah,
                     'peringatan' => (string) $gempa->Potensi,
                     'dirasakan_di' => (string) $gempa->Dirasakan,
-                    'peta_visual' => "https://data.bmkg.go.id/DataMKG/TEWS/" . (string) $gempa->Shakemap
+                    // URL dialihkan ke domain sendiri
+                    'peta_visual' => url('/v1/info/gempa/map.jpg')
                 ];
             }
         } catch (\Exception $e) {
