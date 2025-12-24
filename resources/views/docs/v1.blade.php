@@ -199,6 +199,8 @@ axios.<span class="code-function">get</span>(<span class="code-string">'https://
   <span class="code-attr">"result"</span>: {
     <span class="code-attr">"waktu_kejadian"</span>: <span class="code-string">"24 Dec 2025 - 17:41:00 WIB"</span>,
     <span class="code-attr">"skala_magnitudo"</span>: <span class="code-string">"5.2 SR"</span>,
+    <span class="code-attr">"titik_lokasi"</span>: <span class="code-string">"Pusat gempa 77 km BaratDaya KAB-TASIKMALAYA"</span>,
+    <span class="code-attr">"peringatan"</span>: <span class="code-string">"Tidak berpotensi tsunami"</span>,
     <span class="code-attr">"peta_visual"</span>: <span class="code-string">"https://my-api-bian.absenps.com/v1/info/gempa/map.jpg"</span>
   }
 }</code></pre>
@@ -207,12 +209,13 @@ axios.<span class="code-function">get</span>(<span class="code-string">'https://
 
             <section id="tools" class="mb-24 scroll-mt-28 p-12 bg-white rounded-[3rem] border border-slate-200 relative overflow-hidden">
                 <div class="flex items-center gap-3 mb-6 text-slate-900">
-                    <span class="bg-blue-600 text-white px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase">Get</span>
+                    <span class="bg-blue-600 text-white px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase text-xs">Get</span>
                     <h2 class="text-2xl font-extrabold tracking-tight">Utility & Productivity Tools</h2>
                 </div>
                 
-                <div class="mb-10">
+                <div class="mb-14">
                     <h3 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wider">1. URL Shortener</h3>
+                    <p class="text-slate-500 text-sm mb-4">Mengubah tautan panjang menjadi link pendek resmi Bian API.</p>
                     <div class="bg-slate-900 p-5 rounded-2xl mb-4 border border-white/5 font-mono text-blue-400 text-sm whitespace-nowrap overflow-x-auto">
                         https://my-api-bian.absenps.com/v1/tools/shorten?url=https://google.com
                     </div>
@@ -229,7 +232,8 @@ axios.<span class="code-function">get</span>(<span class="code-string">'https://
                 </div>
 
                 <div>
-                    <h3 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wider">2. Web Screenshot</h3>
+                    <h3 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wider">2. Web Screenshot (Secure Proxy)</h3>
+                    <p class="text-slate-500 text-sm mb-4">Mengambil gambar pratinjau website menggunakan engine proxy Bian API.</p>
                     <div class="bg-slate-900 p-5 rounded-2xl mb-4 border border-white/5 font-mono text-blue-400 text-sm whitespace-nowrap overflow-x-auto">
                         https://my-api-bian.absenps.com/v1/tools/ssweb?url=https://laravel.com
                     </div>
@@ -239,7 +243,7 @@ axios.<span class="code-function">get</span>(<span class="code-string">'https://
   <span class="code-attr">"status"</span>: <span class="code-keyword">200</span>,
   <span class="code-attr">"result"</span>: {
     <span class="code-attr">"target"</span>: <span class="code-string">"https://laravel.com"</span>,
-    <span class="code-attr">"image_url"</span>: <span class="code-string">"https://my-api-bian.absenps.com/v1/tools/ssweb/image.jpg?url=https://laravel.com"</span>
+    <span class="code-attr">"image_url"</span>: <span class="code-string">"https://my-api-bian.absenps.com/v1/tools/ssweb/view/aHR0cHM6Ly9sYXJhdmVsLmNvbQ==/image.jpg"</span>
   }
 }</code></pre>
                     </div>
