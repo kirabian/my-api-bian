@@ -13,5 +13,8 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         //
+        'v1/register',
+        'v1/login',
+        'v1/*', // Ini untuk mengizinkan semua route yang diawali v1
     ];
 }
