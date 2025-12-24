@@ -50,20 +50,20 @@
         <div class="flex items-center gap-2">
             <button onclick="toggleSidebar()" class="lg:hidden text-slate-600 p-2"><i class="fas fa-bars"></i></button>
             <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold italic shadow-lg shadow-blue-500/30">B</div>
-            <div class="font-extrabold text-xl tracking-tighter">BIAN <span class="text-blue-600 italic font-medium">API DOCS</span></div>
+            <div class="font-extrabold text-xl tracking-tighter text-slate-900">BIAN <span class="text-blue-600 italic font-medium">API DOCS</span></div>
         </div>
         <div class="flex gap-4">
             @if($user)
-                <a href="/dashboard" class="bg-blue-600 text-white px-5 py-2 rounded-xl text-xs md:text-sm font-bold shadow-xl shadow-blue-500/20">Dashboard</a>
+                <a href="/dashboard" class="bg-blue-600 text-white px-5 py-2 rounded-xl text-xs md:text-sm font-bold shadow-xl shadow-blue-500/20 transition hover:bg-blue-700">Dashboard</a>
             @else
-                <a href="/v1/login-page" class="border-2 border-slate-200 text-slate-700 px-5 py-2 rounded-xl text-xs md:text-sm font-bold">Login</a>
+                <a href="/v1/login-page" class="border-2 border-slate-200 text-slate-700 px-5 py-2 rounded-xl text-xs md:text-sm font-bold transition hover:border-blue-600 hover:text-blue-600">Login</a>
             @endif
         </div>
     </header>
 
     <div class="flex pt-20">
         <nav id="sidebar" class="sidebar-hidden lg:sidebar-visible w-72 fixed lg:static bg-white border-r p-8 overflow-y-auto">
-            <div class="mb-10">
+            <div class="mb-10 text-slate-900">
                 <h3 class="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest mb-5">Dokumentasi</h3>
                 <ul class="space-y-4 text-sm font-medium nav-list">
                     <li><a href="#intro" class="sidebar-link block text-slate-500 py-1">Introduction</a></li>
@@ -71,7 +71,7 @@
                     <li><a href="#how-to-use" class="sidebar-link block text-slate-500 py-1">Integrasi Key</a></li>
                 </ul>
             </div>
-            <div>
+            <div class="text-slate-900">
                 <h3 class="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest mb-5">Endpoints v1</h3>
                 <ul class="space-y-4 text-sm font-medium nav-list">
                     <li><a href="#users" class="sidebar-link block text-slate-500 py-1">Get Users List</a></li>
@@ -80,10 +80,10 @@
             </div>
         </nav>
 
-        <main class="flex-1 p-6 md:p-12 lg:p-20 max-w-full overflow-hidden">
+        <main class="flex-1 p-6 md:p-12 lg:p-20 max-w-full overflow-hidden text-slate-900">
             
             <section id="intro" class="mb-20 scroll-mt-24">
-                <h1 class="text-4xl md:text-6xl font-extrabold mb-8 tracking-tighter">Solusi Data <span class="text-blue-600">Developer.</span></h1>
+                <h1 class="text-4xl md:text-6xl font-extrabold mb-8 tracking-tighter text-slate-900 leading-tight">Solusi Data <span class="text-blue-600">Developer.</span></h1>
                 <p class="text-slate-500 text-base md:text-xl max-w-3xl leading-relaxed">Dokumentasi resmi integrasi Bian API. Mendukung berbagai bahasa pemrograman untuk kemudahan skalabilitas.</p>
             </section>
 
@@ -91,11 +91,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="bg-white p-6 rounded-3xl border border-slate-200">
                         <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Public Access</p>
-                        <p class="text-3xl font-black">5 <span class="text-xs font-normal">Req/Min</span></p>
+                        <p class="text-3xl font-black text-slate-900">5 <span class="text-xs font-normal">Req/Min</span></p>
                     </div>
                     <div class="bg-white p-6 rounded-3xl border-2 border-blue-600 shadow-xl shadow-blue-500/5">
                         <p class="text-[10px] font-bold text-blue-600 uppercase mb-2">Member Access</p>
-                        <p class="text-3xl font-black">100 <span class="text-xs font-normal">Req/Min</span></p>
+                        <p class="text-3xl font-black text-slate-900">100 <span class="text-xs font-normal">Req/Min</span></p>
                     </div>
                 </div>
             </section>
@@ -105,11 +105,28 @@
                 
                 <div class="space-y-12">
                     <div>
-                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">PHP (cURL)</p>
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <i class="fab fa-node-js text-green-600 text-lg"></i> Node.js (Axios)
+                        </p>
                         <div class="relative">
                             <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-<pre><code><span class="code-comment">// Minta API Key di Dashboard</span>
-<span class="code-variable">$apiKey</span> = <span class="code-string">"YOUR_KEY"</span>;
+<pre><code><span class="code-keyword">const</span> axios = <span class="code-keyword">require</span>(<span class="code-string">'axios'</span>);
+
+axios.<span class="code-function">get</span>(<span class="code-string">'https://my-api-bian.absenps.com/v1/prayer-times?city=Jakarta'</span>, {
+    <span class="code-attr">headers</span>: { <span class="code-string">'X-BIAN-KEY'</span>: <span class="code-string">'YOUR_API_KEY'</span> }
+})
+.<span class="code-function">then</span>(res => console.<span class="code-function">log</span>(res.data))
+.<span class="code-function">catch</span>(err => console.<span class="code-function">error</span>(err));</code></pre>
+                        </div>
+                    </div>
+
+                    <div>
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <i class="fab fa-php text-indigo-600 text-lg"></i> PHP (cURL)
+                        </p>
+                        <div class="relative">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code><span class="code-variable">$apiKey</span> = <span class="code-string">"YOUR_KEY"</span>;
 <span class="code-variable">$ch</span> = <span class="code-function">curl_init</span>(<span class="code-string">"https://my-api-bian.absenps.com/v1/prayer-times?city=Jakarta"</span>);
 <span class="code-function">curl_setopt</span>(<span class="code-variable">$ch</span>, CURLOPT_HTTPHEADER, [<span class="code-string">"X-BIAN-KEY: <span class="code-variable">$apiKey</span>"</span>]);
 <span class="code-function">curl_setopt</span>(<span class="code-variable">$ch</span>, CURLOPT_RETURNTRANSFER, <span class="code-keyword">true</span>);
@@ -119,7 +136,9 @@
                     </div>
 
                     <div>
-                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Golang (http)</p>
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <i class="fab fa-google text-blue-500 text-lg"></i> Golang (http)
+                        </p>
                         <div class="relative">
                             <button class="copy-btn" onclick="copyCode(this)">Copy</button>
 <pre><code><span class="code-keyword">req</span>, _ := http.<span class="code-function">NewRequest</span>(<span class="code-string">"GET"</span>, <span class="code-string">"https://my-api-bian.absenps.com/v1/users"</span>, nil)
@@ -135,8 +154,8 @@ resp, _ := client.<span class="code-function">Do</span>(req)
 
             <section id="users" class="mb-24 scroll-mt-24 p-8 md:p-12 bg-white rounded-[3rem] border border-slate-200">
                 <div class="flex items-center gap-3 mb-6">
-                    <span class="bg-emerald-500 text-white px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest">GET</span>
-                    <h2 class="text-2xl font-extrabold tracking-tight">Get Users List</h2>
+                    <span class="bg-emerald-500 text-white px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase">Get</span>
+                    <h2 class="text-2xl font-extrabold tracking-tight text-slate-900">Get Users List</h2>
                 </div>
                 <p class="text-slate-500 mb-8">Mengambil daftar pengembang terdaftar pada sistem Bian API.</p>
                 <div class="bg-slate-900 p-5 rounded-2xl mb-8 flex items-center justify-between border border-white/5 overflow-x-auto">
@@ -155,11 +174,11 @@ resp, _ := client.<span class="code-function">Do</span>(req)
 
             <section id="prayer" class="mb-24 scroll-mt-24 p-8 md:p-12 bg-white rounded-[3rem] border border-slate-200 relative overflow-hidden">
                 <div class="flex items-center gap-3 mb-6">
-                    <span class="bg-emerald-500 text-white px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest">GET</span>
-                    <h2 class="text-2xl font-extrabold tracking-tight">Global Prayer Times</h2>
+                    <span class="bg-emerald-500 text-white px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase">Get</span>
+                    <h2 class="text-2xl font-extrabold tracking-tight text-slate-900">Global Prayer Times</h2>
                 </div>
                 <p class="text-slate-500 mb-8">Akses jadwal ibadah global dengan skema data kustom yang disamarkan.</p>
-                <div class="bg-slate-900 p-5 rounded-2xl mb-8 flex items-center justify-between overflow-x-auto">
+                <div class="bg-slate-900 p-5 rounded-2xl mb-8 flex items-center justify-between overflow-x-auto border border-white/5">
                     <code class="text-blue-400 font-medium text-xs md:text-sm whitespace-nowrap">/v1/prayer-times?city=Jakarta&country=Indonesia</code>
                 </div>
                 <div class="relative">
@@ -168,7 +187,11 @@ resp, _ := client.<span class="code-function">Do</span>(req)
   <span class="code-attr">"status"</span>: <span class="code-keyword">200</span>,
   <span class="code-attr">"creator"</span>: <span class="code-string">"BIAN STUDIO"</span>,
   <span class="code-attr">"result"</span>: {
-    <span class="code-attr">"jadwal"</span>: { <span class="code-attr">"subuh"</span>: <span class="code-string">"04:12"</span>, <span class="code-attr">"dzuhur"</span>: <span class="code-string">"11:51"</span> }
+    <span class="code-attr">"jadwal"</span>: { 
+      <span class="code-attr">"subuh"</span>: <span class="code-string">"04:12"</span>, 
+      <span class="code-attr">"dzuhur"</span>: <span class="code-string">"11:51"</span>,
+      <span class="code-attr">"maghrib"</span>: <span class="code-string">"18:05"</span>
+    }
   }
 }</code></pre>
                 </div>
@@ -200,8 +223,9 @@ resp, _ := client.<span class="code-function">Do</span>(req)
         function copyCode(btn) {
             const code = btn.parentElement.querySelector('code').innerText;
             navigator.clipboard.writeText(code).then(() => {
+                const originalText = btn.innerText;
                 btn.innerText = 'Copied!';
-                setTimeout(() => btn.innerText = 'Copy', 2000);
+                setTimeout(() => btn.innerText = originalText, 2000);
             });
         }
     </script>
