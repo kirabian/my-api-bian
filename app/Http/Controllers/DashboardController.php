@@ -5,15 +5,11 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller {
     public function index() {
-        if (!session('user_id')) return redirect('/v1/login-page');
-        
-        $user = DB::table('api_developers')->where('id', session('user_id'))->first();
-        
-        if ($user->role == 'admin') {
-            $allUsers = DB::table('api_developers')->get();
-            return view('dashboard.admin', compact('user', 'allUsers'));
+        // Ambil data user jika sudah login
+        $user = null;
+        if (session('user_id')) {
+            $user = DB::table('api_developers')->where('id', session('user_id'))->first();
         }
-        
-        return view('dashboard.user', compact('user'));
+        return view('welcome', compact('user'));
     }
 }
