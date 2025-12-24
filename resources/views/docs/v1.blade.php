@@ -10,10 +10,10 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
         
-        body { font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
         code, pre { font-family: 'JetBrains Mono', monospace; }
 
-        /* Syntax Highlighting Colors */
+        /* Syntax Highlighting */
         pre { background: #0d1117; color: #c9d1d9; padding: 1.5rem; border-radius: 1rem; overflow-x: auto; position: relative; border: 1px solid rgba(255,255,255,0.1); }
         .code-keyword { color: #ff7b72; } 
         .code-string { color: #a5d6ff; }  
@@ -22,266 +22,188 @@
         .code-attr { color: #ffa657; }     
         .code-function { color: #79c0ff; } 
 
-        /* Copy Button UI */
         .copy-btn { 
-            position: absolute; 
-            right: 12px; 
-            top: 12px; 
-            background: rgba(255,255,255,0.05); 
-            border: 1px solid rgba(255,255,255,0.1); 
-            color: #8b949e; 
-            padding: 6px 12px; 
-            border-radius: 8px; 
-            font-size: 11px; 
-            font-weight: 600;
-            cursor: pointer; 
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            z-index: 10;
-        }
-        .copy-btn:hover { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.3); }
-
-        /* Responsive Sidebar */
-        .sidebar-link.active { 
-            color: #2563eb; 
-            font-weight: 700; 
-            border-left: 3px solid #2563eb; 
-            padding-left: 1rem; 
-            background: linear-gradient(90deg, rgba(37,99,235,0.05) 0%, transparent 100%); 
+            position: absolute; right: 12px; top: 12px; 
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
+            color: #8b949e; padding: 6px 12px; border-radius: 8px; 
+            font-size: 11px; font-weight: 600; cursor: pointer; 
+            transition: all 0.2s; z-index: 10;
         }
 
-        #mobile-menu { transition: transform 0.3s ease-in-out; }
-        .menu-open #mobile-menu { transform: translateX(0); }
+        /* Mobile Sidebar Fix */
+        #sidebar { transition: all 0.3s ease-in-out; }
+        .sidebar-hidden { transform: translateX(-100%); }
+        .sidebar-visible { transform: translateX(0); }
+        .overlay { background: rgba(0,0,0,0.5); position: fixed; inset: 0; z-index: 80; display: none; }
+        .sidebar-link.active { color: #2563eb; font-weight: 700; border-left: 3px solid #2563eb; padding-left: 1rem; }
+        
+        @media (max-width: 1024px) {
+            #sidebar { width: 280px; z-index: 100; position: fixed; height: 100vh; top: 0; }
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900">
 
-    <header class="fixed w-full bg-white/80 backdrop-blur-md border-b z-[100] px-4 md:px-8 py-4 flex justify-between items-center">
+    <div id="sidebar-overlay" class="overlay lg:hidden"></div>
+
+    <header class="fixed w-full bg-white/80 backdrop-blur-md border-b z-[90] px-4 md:px-8 py-4 flex justify-between items-center">
         <div class="flex items-center gap-2">
-            <button id="menu-toggle" class="lg:hidden text-slate-600 p-2"><i class="fas fa-bars"></i></button>
+            <button onclick="toggleSidebar()" class="lg:hidden text-slate-600 p-2"><i class="fas fa-bars"></i></button>
             <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold italic shadow-lg shadow-blue-500/30">B</div>
             <div class="font-extrabold text-xl tracking-tighter">BIAN <span class="text-blue-600 italic font-medium">API DOCS</span></div>
         </div>
-        <div class="flex gap-2 md:gap-4">
-            <a href="/" class="hidden sm:block text-sm font-semibold text-slate-500 hover:text-blue-600 transition py-2 px-2">Home</a>
+        <div class="flex gap-4">
             @if($user)
-                <a href="/dashboard" class="bg-blue-600 text-white px-4 md:px-6 py-2 rounded-xl text-xs md:text-sm font-bold shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition-all">Dashboard</a>
+                <a href="/dashboard" class="bg-blue-600 text-white px-5 py-2 rounded-xl text-xs md:text-sm font-bold shadow-xl shadow-blue-500/20">Dashboard</a>
             @else
-                <a href="/v1/login-page" class="border-2 border-slate-200 text-slate-700 px-4 md:px-6 py-2 rounded-xl text-xs md:text-sm font-bold hover:border-blue-600 hover:text-blue-600 transition-all">Login</a>
+                <a href="/v1/login-page" class="border-2 border-slate-200 text-slate-700 px-5 py-2 rounded-xl text-xs md:text-sm font-bold">Login</a>
             @endif
         </div>
     </header>
 
-    <div id="mobile-menu" class="fixed inset-0 bg-white z-[90] transform -translateX-full lg:hidden pt-24 px-8 overflow-y-auto">
-        <div class="mb-10">
-            <h3 class="text-[11px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-5">Dokumentasi</h3>
-            <ul class="space-y-4 text-sm font-medium mobile-nav">
-                <li><a href="#intro" class="block text-slate-500 py-1">Introduction</a></li>
-                <li><a href="#rate-limit" class="block text-slate-500 py-1">Rate Limiting</a></li>
-                <li><a href="#how-to-use" class="block text-slate-500 py-1 text-blue-600 font-bold">Integrasi Key</a></li>
-            </ul>
-        </div>
-        <div class="mb-10">
-            <h3 class="text-[11px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-5">Endpoints v1</h3>
-            <ul class="space-y-4 text-sm font-medium mobile-nav">
-                <li><a href="#users" class="block text-slate-500 py-1">Get Users List</a></li>
-                <li><a href="#prayer" class="block text-slate-500 py-1">Global Prayer Times</a></li>
-            </ul>
-        </div>
-    </div>
-
     <div class="flex pt-20">
-        <nav class="w-72 fixed h-[calc(100vh-80px)] border-r bg-white p-8 overflow-y-auto hidden lg:block">
+        <nav id="sidebar" class="sidebar-hidden lg:sidebar-visible w-72 fixed lg:static bg-white border-r p-8 overflow-y-auto">
             <div class="mb-10">
-                <h3 class="text-[11px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-5">Dokumentasi</h3>
-                <ul class="space-y-4 text-sm font-medium">
-                    <li><a href="#intro" class="sidebar-link block text-slate-500 hover:text-blue-600 transition-all py-1">Introduction</a></li>
-                    <li><a href="#rate-limit" class="sidebar-link block text-slate-500 hover:text-blue-600 transition-all py-1">Rate Limiting</a></li>
-                    <li><a href="#how-to-use" class="sidebar-link block text-slate-500 hover:text-blue-600 transition-all py-1">Integrasi Key</a></li>
+                <h3 class="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest mb-5">Dokumentasi</h3>
+                <ul class="space-y-4 text-sm font-medium nav-list">
+                    <li><a href="#intro" class="sidebar-link block text-slate-500 py-1">Introduction</a></li>
+                    <li><a href="#rate-limit" class="sidebar-link block text-slate-500 py-1">Rate Limiting</a></li>
+                    <li><a href="#how-to-use" class="sidebar-link block text-slate-500 py-1">Integrasi Key</a></li>
                 </ul>
             </div>
             <div>
-                <h3 class="text-[11px] font-extrabold text-slate-400 uppercase tracking-[0.2em] mb-5">Endpoints v1</h3>
-                <ul class="space-y-4 text-sm font-medium">
-                    <li><a href="#users" class="sidebar-link block text-slate-500 hover:text-blue-600 transition-all py-1">Get Users List</a></li>
-                    <li><a href="#prayer" class="sidebar-link block text-slate-500 hover:text-blue-600 transition-all py-1 font-bold text-blue-600 active">Global Prayer Times</a></li>
+                <h3 class="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest mb-5">Endpoints v1</h3>
+                <ul class="space-y-4 text-sm font-medium nav-list">
+                    <li><a href="#users" class="sidebar-link block text-slate-500 py-1">Get Users List</a></li>
+                    <li><a href="#prayer" class="sidebar-link block text-slate-500 py-1 font-bold text-blue-600 active">Prayer Times</a></li>
                 </ul>
             </div>
         </nav>
 
-        <main class="flex-1 lg:ml-72 p-4 md:p-12 lg:p-20 max-w-6xl overflow-hidden">
+        <main class="flex-1 p-6 md:p-12 lg:p-20 max-w-full overflow-hidden">
             
-            <section id="intro" class="mb-16 md:mb-24">
-                <div class="inline-block px-4 py-1.5 bg-blue-50 text-blue-600 rounded-full text-[10px] md:text-[12px] font-bold mb-6">v1.0.0 Release</div>
-                <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 md:mb-8 tracking-tighter text-slate-900 leading-tight">Bangun masa depan dengan <span class="text-blue-600">API Terpercaya.</span></h1>
-                <p class="text-slate-500 leading-relaxed text-base md:text-xl max-w-3xl">
-                    Dokumentasi resmi untuk integrasi Bian API. Kami menyediakan layanan data yang cepat, aman, dan skalabel mulai dari data developer hingga jadwal ibadah global yang telah disamarkan secara eksklusif.
-                </p>
+            <section id="intro" class="mb-20 scroll-mt-24">
+                <h1 class="text-4xl md:text-6xl font-extrabold mb-8 tracking-tighter">Solusi Data <span class="text-blue-600">Developer.</span></h1>
+                <p class="text-slate-500 text-base md:text-xl max-w-3xl leading-relaxed">Dokumentasi resmi integrasi Bian API. Mendukung berbagai bahasa pemrograman untuk kemudahan skalabilitas.</p>
             </section>
 
-            <section id="rate-limit" class="mb-16 md:mb-24 scroll-mt-28">
-                <h2 class="text-xl md:text-2xl font-extrabold mb-8 flex items-center gap-3">
-                    <span class="w-8 h-8 md:w-10 md:h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white text-sm"><i class="fas fa-bolt"></i></span>
-                    Batas Penggunaan (Rate Limit)
-                </h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-                    <div class="bg-white p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-200 shadow-sm">
-                        <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2">Public Access</p>
-                        <p class="text-3xl md:text-4xl font-black text-slate-900 mb-2">5 <span class="text-xs font-medium text-slate-400">Req / Min</span></p>
-                        <p class="text-[10px] md:text-xs text-slate-400 leading-relaxed italic">*IP Based Identification.</p>
+            <section id="rate-limit" class="mb-20 scroll-mt-24">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-6 rounded-3xl border border-slate-200">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Public Access</p>
+                        <p class="text-3xl font-black">5 <span class="text-xs font-normal">Req/Min</span></p>
                     </div>
-                    <div class="bg-white p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border-2 border-blue-600 shadow-xl shadow-blue-500/5">
-                        <p class="text-[10px] font-extrabold text-blue-600 uppercase tracking-widest mb-2">Member Access</p>
-                        <p class="text-3xl md:text-4xl font-black text-slate-900 mb-2">100 <span class="text-sm font-medium text-slate-400">Req / Min</span></p>
-                        <p class="text-[10px] md:text-xs text-blue-500 leading-relaxed italic font-medium">*Header X-BIAN-KEY Required.</p>
+                    <div class="bg-white p-6 rounded-3xl border-2 border-blue-600 shadow-xl shadow-blue-500/5">
+                        <p class="text-[10px] font-bold text-blue-600 uppercase mb-2">Member Access</p>
+                        <p class="text-3xl font-black">100 <span class="text-xs font-normal">Req/Min</span></p>
                     </div>
                 </div>
             </section>
 
-            <section id="how-to-use" class="mb-16 md:mb-24 scroll-mt-28">
-                <h2 class="text-xl md:text-2xl font-extrabold mb-8 flex items-center gap-3 text-slate-900">
-                    <span class="w-8 h-8 md:w-10 md:h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white text-sm"><i class="fas fa-key"></i></span>
-                    Integrasi API Key
-                </h2>
-                <div class="space-y-10">
-                    <div>
-                        <div class="flex items-center gap-3 mb-4">
-                            <i class="fab fa-node-js text-2xl text-green-600"></i>
-                            <p class="text-xs font-bold text-slate-700 uppercase tracking-widest">Node.js Integration</p>
-                        </div>
-                        <div class="relative">
-                            <button class="copy-btn" onclick="copyCode(this)"><i class="far fa-copy"></i> Copy</button>
-<pre><code><span class="code-keyword">const</span> axios = <span class="code-keyword">require</span>(<span class="code-string">'axios'</span>);
-
-axios.<span class="code-function">get</span>(<span class="code-string">'https://my-api-bian.absenps.com/v1/prayer-times?city=Jakarta'</span>, {
-    <span class="code-attr">headers</span>: { <span class="code-string">'X-BIAN-KEY'</span>: <span class="code-string">'YOUR_KEY'</span> }
-})
-.<span class="code-function">then</span>(res => console.<span class="code-function">log</span>(res.data));</code></pre>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="prayer" class="mb-16 md:mb-24 scroll-mt-28 p-6 md:p-12 bg-white rounded-[1.5rem] md:rounded-[3rem] border border-slate-200 shadow-sm relative overflow-hidden">
-                <div class="flex items-center gap-4 mb-6 md:mb-8">
-                    <span class="bg-emerald-500 text-white px-3 py-1 md:px-4 md:py-1.5 rounded-xl text-[10px] md:text-[12px] font-black tracking-widest uppercase">Get</span>
-                    <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Global Prayer Times</h2>
-                </div>
+            <section id="how-to-use" class="mb-24 scroll-mt-24">
+                <h2 class="text-2xl font-extrabold mb-10 flex items-center gap-3"><i class="fas fa-code text-blue-600"></i> Code Integration</h2>
                 
-                <p class="text-slate-500 mb-8 text-sm md:text-lg">Jadwal ibadah global yang telah ditransformasi khusus untuk pengguna BIAN API.</p>
+                <div class="space-y-12">
+                    <div>
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">PHP (cURL)</p>
+                        <div class="relative">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code><span class="code-comment">// Minta API Key di Dashboard</span>
+<span class="code-variable">$apiKey</span> = <span class="code-string">"YOUR_KEY"</span>;
+<span class="code-variable">$ch</span> = <span class="code-function">curl_init</span>(<span class="code-string">"https://my-api-bian.absenps.com/v1/prayer-times?city=Jakarta"</span>);
+<span class="code-function">curl_setopt</span>(<span class="code-variable">$ch</span>, CURLOPT_HTTPHEADER, [<span class="code-string">"X-BIAN-KEY: <span class="code-variable">$apiKey</span>"</span>]);
+<span class="code-function">curl_setopt</span>(<span class="code-variable">$ch</span>, CURLOPT_RETURNTRANSFER, <span class="code-keyword">true</span>);
+<span class="code-variable">$response</span> = <span class="code-function">curl_exec</span>(<span class="code-variable">$ch</span>);
+<span class="code-function">echo</span> <span class="code-variable">$response</span>;</code></pre>
+                        </div>
+                    </div>
 
-                <div class="bg-slate-900 p-4 md:p-6 rounded-2xl mb-10 flex items-center justify-between border border-white/5 overflow-x-auto">
+                    <div>
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Golang (http)</p>
+                        <div class="relative">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code><span class="code-keyword">req</span>, _ := http.<span class="code-function">NewRequest</span>(<span class="code-string">"GET"</span>, <span class="code-string">"https://my-api-bian.absenps.com/v1/users"</span>, nil)
+<span class="code-keyword">req</span>.Header.<span class="code-function">Set</span>(<span class="code-string">"X-BIAN-KEY"</span>, <span class="code-string">"YOUR_API_KEY"</span>)
+
+client := &http.Client{}
+resp, _ := client.<span class="code-function">Do</span>(req)
+<span class="code-keyword">defer</span> resp.Body.<span class="code-function">Close</span>()</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="users" class="mb-24 scroll-mt-24 p-8 md:p-12 bg-white rounded-[3rem] border border-slate-200">
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="bg-emerald-500 text-white px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest">GET</span>
+                    <h2 class="text-2xl font-extrabold tracking-tight">Get Users List</h2>
+                </div>
+                <p class="text-slate-500 mb-8">Mengambil daftar pengembang terdaftar pada sistem Bian API.</p>
+                <div class="bg-slate-900 p-5 rounded-2xl mb-8 flex items-center justify-between border border-white/5 overflow-x-auto">
+                    <code class="text-blue-400 font-medium text-xs md:text-sm whitespace-nowrap">/v1/users</code>
+                </div>
+                <div class="relative">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy JSON</button>
+<pre><code>{
+  <span class="code-attr">"status"</span>: <span class="code-string">"success"</span>,
+  <span class="code-attr">"data"</span>: [
+    { <span class="code-attr">"id"</span>: <span class="code-keyword">1</span>, <span class="code-attr">"username"</span>: <span class="code-string">"bian"</span>, <span class="code-attr">"role"</span>: <span class="code-string">"admin"</span> }
+  ]
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="prayer" class="mb-24 scroll-mt-24 p-8 md:p-12 bg-white rounded-[3rem] border border-slate-200 relative overflow-hidden">
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="bg-emerald-500 text-white px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest">GET</span>
+                    <h2 class="text-2xl font-extrabold tracking-tight">Global Prayer Times</h2>
+                </div>
+                <p class="text-slate-500 mb-8">Akses jadwal ibadah global dengan skema data kustom yang disamarkan.</p>
+                <div class="bg-slate-900 p-5 rounded-2xl mb-8 flex items-center justify-between overflow-x-auto">
                     <code class="text-blue-400 font-medium text-xs md:text-sm whitespace-nowrap">/v1/prayer-times?city=Jakarta&country=Indonesia</code>
                 </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
-                    <div>
-                        <h3 class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-6">Bian Format Response</h3>
-                        <div class="relative">
-                            <button class="copy-btn" onclick="copyCode(this)"><i class="far fa-copy"></i> Copy</button>
+                <div class="relative">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy JSON</button>
 <pre><code>{
   <span class="code-attr">"status"</span>: <span class="code-keyword">200</span>,
   <span class="code-attr">"creator"</span>: <span class="code-string">"BIAN STUDIO"</span>,
   <span class="code-attr">"result"</span>: {
-    <span class="code-attr">"info_lokasi"</span>: {
-      <span class="code-attr">"nama_kota"</span>: <span class="code-string">"JAKARTA"</span>,
-      <span class="code-attr">"wilayah"</span>: <span class="code-string">"Indonesia"</span>
-    },
-    <span class="code-attr">"jadwal"</span>: {
-      <span class="code-attr">"subuh"</span>: <span class="code-string">"04:12"</span>,
-      <span class="code-attr">"dzuhur"</span>: <span class="code-string">"11:51"</span>,
-      <span class="code-attr">"ashar"</span>: <span class="code-string">"15:15"</span>,
-      <span class="code-attr">"maghrib"</span>: <span class="code-string">"18:05"</span>,
-      <span class="code-attr">"isya"</span>: <span class="code-string">"19:18"</span>
-    }
+    <span class="code-attr">"jadwal"</span>: { <span class="code-attr">"subuh"</span>: <span class="code-string">"04:12"</span>, <span class="code-attr">"dzuhur"</span>: <span class="code-string">"11:51"</span> }
   }
 }</code></pre>
-                        </div>
-                    </div>
-                    <div>
-                        <h3 class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-6">Query Parameters</h3>
-                        <div class="space-y-4">
-                            <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                <p class="text-sm font-bold text-blue-600 mb-1 font-mono">city <span class="text-red-500 text-[10px] ml-1">REQUIRED</span></p>
-                                <p class="text-[11px] md:text-xs text-slate-500 leading-relaxed">Nama kota di seluruh dunia (Contoh: London, Tokyo, Mecca).</p>
-                            </div>
-                            <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                <p class="text-sm font-bold text-blue-600 mb-1 font-mono">country <span class="text-slate-400 text-[10px] ml-1 font-normal uppercase">Optional</span></p>
-                                <p class="text-[11px] md:text-xs text-slate-500 leading-relaxed">Nama negara. Default: Indonesia.</p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </section>
         </main>
     </div>
 
-    <footer class="bg-white border-t py-12 md:py-20 lg:ml-72">
-        <div class="max-w-6xl mx-auto px-8 flex flex-col items-center">
-            <div class="flex gap-6 mb-8">
-                <a href="#" class="text-slate-300 hover:text-blue-600 transition text-2xl"><i class="fab fa-github"></i></a>
-                <a href="#" class="text-slate-300 hover:text-blue-600 transition text-2xl"><i class="fab fa-discord"></i></a>
-            </div>
-            <p class="text-slate-400 text-[10px] font-extrabold uppercase tracking-[0.3em] text-center">&copy; 2024 BianDev Studio • Jakarta, Indonesia</p>
-        </div>
-    </footer>
-
     <script>
-        // Copy Code Function
+        // SIDEBAR TOGGLE
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        
+        function toggleSidebar() {
+            sidebar.classList.toggle('sidebar-hidden');
+            sidebar.classList.toggle('sidebar-visible');
+            overlay.style.display = sidebar.classList.contains('sidebar-visible') ? 'block' : 'none';
+        }
+
+        overlay.addEventListener('click', toggleSidebar);
+
+        // Close sidebar on link click (Mobile)
+        document.querySelectorAll('.nav-list a').forEach(link => {
+            link.addEventListener('click', () => {
+                if(window.innerWidth < 1024) toggleSidebar();
+            });
+        });
+
+        // Copy Function
         function copyCode(btn) {
             const code = btn.parentElement.querySelector('code').innerText;
             navigator.clipboard.writeText(code).then(() => {
-                const originalHTML = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                btn.style.color = '#10b981';
-                
-                setTimeout(() => {
-                    btn.innerHTML = originalHTML;
-                    btn.style.color = '#8b949e';
-                }, 2000);
-                Toast.fire({ icon: 'success', title: 'Code copied!' });
+                btn.innerText = 'Copied!';
+                setTimeout(() => btn.innerText = 'Copy', 2000);
             });
         }
-
-        const Toast = Swal.mixin({
-            toast: true, position: 'top-end', showConfirmButton: false, timer: 1500,
-            timerProgressBar: true, background: '#0d1117', color: '#fff'
-        });
-
-        // Mobile Menu Toggle
-        const menuToggle = document.getElementById('menu-toggle');
-        const body = document.body;
-        menuToggle.addEventListener('click', () => {
-            body.classList.toggle('menu-open');
-            const icon = menuToggle.querySelector('i');
-            icon.classList.toggle('fa-bars');
-            icon.classList.toggle('fa-times');
-        });
-
-        // Close mobile menu on link click
-        document.querySelectorAll('.mobile-nav a').forEach(link => {
-            link.addEventListener('click', () => {
-                body.classList.remove('menu-open');
-                menuToggle.querySelector('i').classList.add('fa-bars');
-                menuToggle.querySelector('i').classList.remove('fa-times');
-            });
-        });
-
-        // Smooth Scroll Sidebar
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if(target) {
-                    window.scrollTo({
-                        top: target.offsetTop - 100,
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
     </script>
 </body>
 </html>
