@@ -11,7 +11,7 @@ class ToolsController extends Controller
     // 1. URL Shortener
     public function shortenUrl(Request $request)
     {
-        $url = $request->query('url');
+        $url = $request->input('url');
         if (!$url) return response()->json(['status' => 400, 'message' => 'Query url wajib diisi'], 400);
 
         try {
@@ -22,10 +22,7 @@ class ToolsController extends Controller
             return response()->json([
                 'status' => 200,
                 'creator' => 'BIAN DEVELOPER STUDIO',
-                'result' => [
-                    'original' => $url,
-                    'short' => $customShort
-                ]
+                'result' => ['original' => $url, 'short' => $customShort]
             ]);
         } catch (\Exception $e) {
             return response()->json(['status' => 500, 'message' => 'Gagal memproses'], 500);
@@ -35,10 +32,10 @@ class ToolsController extends Controller
     // 2. Website Screenshot JSON
     public function screenshotWeb(Request $request)
     {
-        $url = $request->query('url');
+        $url = $request->input('url');
         if (!$url) return response()->json(['status' => 400, 'message' => 'Query url wajib diisi'], 400);
 
-        // Pastikan link menyertakan parameter url di ujungnya
+        // Link gambar diarahkan ke proxy domain Anda sendiri
         $maskedImageUrl = url('/v1/tools/ssweb/image.jpg') . "?url=" . urlencode($url);
 
         return response()->json([
@@ -51,29 +48,29 @@ class ToolsController extends Controller
         ]);
     }
 
-    // 3. FIX Proxy Gambar Screenshot
+    // 3. Proxy Gambar Screenshot - FIX TOTAL
     public function getScreenshotImage(Request $request)
     {
-        // Menangkap URL dari parameter query
-        $targetUrl = $request->input('url');
+        // Menangkap parameter 'url' dari query string
+        $targetUrl = $request->query('url');
 
         if (!$targetUrl) {
             return response()->json(['message' => 'URL target tidak ditemukan dalam request'], 400);
         }
 
         try {
-            // Engine s-shot.ru tanpa API Key
+            // Engine s-shot.ru (Gratis & No Key)
             $externalUrl = "https://api.s-shot.ru/1024x768/JPEG/1024/Z100/?" . urlencode($targetUrl);
             
-            $imageContent = Http::timeout(30)->get($externalUrl);
+            $imageResponse = Http::timeout(45)->get($externalUrl);
 
-            if($imageContent->successful()){
-                return response($imageContent->body())->header('Content-Type', 'image/jpeg');
+            if($imageResponse->successful()){
+                return response($imageResponse->body())->header('Content-Type', 'image/jpeg');
             }
             
-            return response()->json(['message' => 'Gagal mengambil gambar dari engine'], 500);
+            return response()->json(['message' => 'Gagal mengambil gambar dari engine server'], 500);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Internal Server Error'], 500);
+            return response()->json(['message' => 'Internal Server Error: ' . $e->getMessage()], 500);
         }
     }
 }
