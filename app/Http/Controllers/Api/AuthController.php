@@ -39,7 +39,9 @@ class AuthController extends Controller
         return response()->json([
             'status' => 'success', 
             'message' => 'Berhasil daftar!',
-            'api_key' => $apiKey
+            'api_key' => $apiKey,
+            'redirect' => '/v1/login-page'
+            
         ]);
     }
 
