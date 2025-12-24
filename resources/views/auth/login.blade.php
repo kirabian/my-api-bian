@@ -6,6 +6,7 @@
     <title>Login - Bian API</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { background-color: #0b0e14; color: #ffffff; }
         .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
@@ -22,13 +23,11 @@
         </div>
 
         <div class="glass p-8 rounded-3xl shadow-2xl">
-            @if(session('error'))
-                <div class="bg-red-500/10 border border-red-500/50 text-red-500 p-3 rounded-xl text-sm mb-6 flex items-center gap-2">
-                    <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
-                </div>
-            @endif
+            <div id="error-box" class="hidden bg-red-500/10 border border-red-500/50 text-red-500 p-3 rounded-xl text-sm mb-6 flex items-center gap-2">
+                <i class="fas fa-exclamation-circle"></i> <span id="error-message"></span>
+            </div>
 
-            <form action="/v1/login" method="POST" class="space-y-6">
+            <form id="loginForm" class="space-y-6">
                 @csrf
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Username</label>
@@ -50,8 +49,8 @@
                     </div>
                 </div>
 
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-900/40 transition flex items-center justify-center gap-2">
-                    Sign In <i class="fas fa-sign-in-alt text-xs"></i>
+                <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-900/40 transition flex items-center justify-center gap-2">
+                    <span id="btnText">Sign In</span> <i class="fas fa-sign-in-alt text-xs"></i>
                 </button>
             </form>
 
@@ -68,5 +67,55 @@
         </p>
     </div>
 
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const errorBox = document.getElementById('error-box');
+        const errorMessage = document.getElementById('error-message');
+        const submitBtn = document.getElementById('submitBtn');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Reset UI
+            errorBox.classList.add('hidden');
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50');
+            document.getElementById('btnText').innerText = 'Processing...';
+
+            const formData = new FormData(loginForm);
+
+            try {
+                const response = await fetch('/v1/login', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    // Berhasil: Alihkan ke dashboard
+                    window.location.href = data.redirect;
+                } else {
+                    // Gagal: Tampilkan pesan error
+                    errorBox.classList.remove('hidden');
+                    errorMessage.innerText = data.message || 'Login gagal, periksa kembali data Anda.';
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-50');
+                    document.getElementById('btnText').innerText = 'Sign In';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                errorBox.classList.remove('hidden');
+                errorMessage.innerText = 'Terjadi kesalahan koneksi ke server.';
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50');
+                document.getElementById('btnText').innerText = 'Sign In';
+            }
+        });
+    </script>
 </body>
 </html>

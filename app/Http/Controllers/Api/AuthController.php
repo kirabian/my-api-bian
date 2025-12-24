@@ -58,12 +58,14 @@ class AuthController extends Controller
                 'username' => $dev->username
             ]);
             
+            // Mengirimkan instruksi redirect ke JavaScript
             return response()->json([
                 'status' => 'success', 
                 'redirect' => '/dashboard'
             ]);
         }
         
+        // Mengirimkan error jika data tidak cocok
         return response()->json([
             'status' => 'error', 
             'message' => 'Username atau Password salah!'
