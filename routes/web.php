@@ -16,30 +16,26 @@ use App\Http\Controllers\Api\PrayerController;
 |--------------------------------------------------------------------------
 | Rate Limiter Configuration
 |--------------------------------------------------------------------------
-| Diperbarui untuk mendukung pengecekan API Key lewat Header (X-BIAN-KEY)
-| Jika ada API Key valid: 100 Req/Min
-| Jika tidak ada atau tidak valid: 5 Req/Min
 */
 
 RateLimiter::for('api-limiter', function (Request $request) {
-    // 1. Cek apakah ada API Key di Header (X-BIAN-KEY)
+    // Cek Header API Key
     $apiKey = $request->header('X-BIAN-KEY');
     
     if ($apiKey) {
         $user = DB::table('api_developers')->where('api_key', $apiKey)->first();
         if ($user) {
-            // User Terdaftar & Valid: Beri 100 limit
             return Limit::perMinute(100)->by($user->id);
         }
     }
 
-    // 2. Jika tidak ada Header, cek Session (untuk akses Dashboard/Web)
+    // Cek Session User
     $userId = session('user_id');
     if ($userId) {
         return Limit::perMinute(100)->by($userId);
     }
 
-    // 3. User Publik (Tanpa Key & Tanpa Login): 5 limit per IP
+    // Default Public Limit
     return Limit::perMinute(5)->by($request->ip());
 });
 
@@ -49,22 +45,20 @@ RateLimiter::for('api-limiter', function (Request $request) {
 |--------------------------------------------------------------------------
 */
 
-// Halaman Utama / Landing Page
+// Halaman Utama & Docs
 Route::get('/', [DashboardController::class, 'index']);
-
-// Halaman Dokumentasi
 Route::get('/docs/v1', function () {
     $user = session('user_id') ? DB::table('api_developers')->where('id', session('user_id'))->first() : null;
     return view('docs.v1', compact('user'));
 });
 
-// ROUTE AUTH
+// Auth Routes
 Route::post('/v1/register', [AuthController::class, 'register']);
 Route::post('/v1/login', [AuthController::class, 'login']);
 Route::get('/v1/logout', [AuthController::class, 'logout']);
 Route::post('/v1/verify-action', [AuthController::class, 'verifyAction']);
 
-// UI Pages dengan Proteksi Redirect Terpusat
+// UI Pages
 Route::get('/v1/login-page', function () {
     if (session('user_id')) return redirect('/dashboard');
     return view('auth.login');
@@ -75,19 +69,16 @@ Route::get('/v1/register-page', function () {
     return view('auth.register');
 });
 
-// Route Dashboard
+// Dashboard Protected
 Route::get('/dashboard', [DashboardController::class, 'index']);
 
 /*
 |--------------------------------------------------------------------------
-| API Endpoints (Dengan Rate Limiting Hybrid)
+| API Endpoints (Dengan Rate Limiting & Custom Error 429)
 |--------------------------------------------------------------------------
 */
 
 Route::middleware(['throttle:api-limiter'])->group(function () {
-    // API User List
     Route::get('/v1/users', [UserController::class, 'index']);
-    
-    // API Jadwal Sholat (Global)
     Route::get('/v1/prayer-times', [PrayerController::class, 'getTimes']);
 });
