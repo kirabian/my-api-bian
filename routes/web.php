@@ -12,6 +12,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Api\PrayerController;
 use App\Http\Controllers\Api\GempaController;
+use App\Http\Controllers\Api\ToolsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -85,4 +86,8 @@ Route::middleware(['throttle:api-limiter'])->group(function () {
     Route::get('/v1/info/gempa', [GempaController::class, 'getGempa']);
     // Endpoint Masking Peta Gempa ke Domain Sendiri
     Route::get('/v1/info/gempa/map.jpg', [GempaController::class, 'getGempaMap']);
+
+    // Endpoints Utility Tools Baru
+    Route::get('/v1/tools/shorten', [ToolsController::class, 'shortenUrl']);
+    Route::get('/v1/tools/ssweb', [ToolsController::class, 'screenshotWeb']);
 });
