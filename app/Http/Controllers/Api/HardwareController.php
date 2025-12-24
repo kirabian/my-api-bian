@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Client\ConnectionException; // Import ini penting
 
 class HardwareController extends Controller
 {
@@ -24,19 +23,23 @@ class HardwareController extends Controller
             }
         }
 
-        // 2. Caching dengan Error Handling
-        try {
-            $results = Cache::remember('real_hardware_prices_' . $type, 3600, function () use ($type) {
-                return $this->scrapeRealPrice($type);
-            });
-        } catch (\Exception $e) {
-            // Jika koneksi internet server bermasalah, kirim pesan error yang rapi
-            return response()->json([
-                'status' => 500,
-                'message' => 'Server kami gagal terhubung ke sumber data global. Silakan coba lagi nanti.',
-                'error_detail' => 'Connection issue on server side.'
-            ], 500);
-        }
+        // 2. Caching dengan Logika Fallback Pintar
+        $data = Cache::remember('hardware_prices_smart_' . $type, 3600, function () use ($type) {
+            $realData = $this->scrapeRealPrice($type);
+
+            // Jika gagal ambil data asli (kosong atau error), gunakan data cadangan
+            if (empty($realData)) {
+                return [
+                    'source_type' => 'SIMULATED_DATA_FALLBACK',
+                    'items' => $this->getFallbackData($type)
+                ];
+            }
+
+            return [
+                'source_type' => 'REALTIME_GLOBAL_MARKET',
+                'items' => $realData
+            ];
+        });
 
         return response()->json([
             'status' => 200,
@@ -44,10 +47,12 @@ class HardwareController extends Controller
             'result' => [
                 'kategori' => strtoupper($type),
                 'currency' => 'USD',
-                'data' => $results
+                'source' => $data['source_type'],
+                'data' => $data['items']
             ],
             'server_info' => [
-                'last_update' => now()->toDateTimeString()
+                'last_update' => now()->toDateTimeString(),
+                'limit_info' => $apiKey ? '100/min (Premium)' : '5/min (Free)'
             ]
         ]);
     }
@@ -55,8 +60,8 @@ class HardwareController extends Controller
     private function scrapeRealPrice($type)
     {
         try {
-            // Menembak API Hardware (Pastikan domain ini bisa diakses dari server Anda)
-            $response = Http::timeout(5)->get("https://api.pangoly.com/v1/products", [
+            // Kita coba akses API luar dengan timeout singkat (3 detik)
+            $response = Http::timeout(3)->get("https://api.pangoly.com/v1/products", [
                 'category' => ($type == 'ssd') ? 'ssd' : 'ram',
                 'limit' => 10
             ]);
@@ -76,10 +81,26 @@ class HardwareController extends Controller
                 return $maskedData;
             }
         } catch (\Exception $e) {
-            // Jika gagal scrape, lempar error agar ditangkap oleh getPrices
-            throw new \Exception("External API Unreachable");
+            // Jika internet server mati, jangan kirim error, kembalikan null saja
+            return null;
         }
+        return null;
+    }
 
-        return [];
+    private function getFallbackData($type)
+    {
+        // Data cadangan jika server Hostinger sedang bermasalah koneksinya
+        $ssd = [
+            ['merk' => 'Samsung', 'tipe' => '990 Pro 1TB NVMe', 'harga' => 119.99, 'status' => 'Tersedia'],
+            ['merk' => 'WD Black', 'tipe' => 'SN850X 1TB', 'harga' => 84.99, 'status' => 'Tersedia'],
+            ['merk' => 'Crucial', 'tipe' => 'P3 2TB NVMe', 'harga' => 98.50, 'status' => 'Tersedia'],
+        ];
+
+        $ram = [
+            ['merk' => 'Corsair', 'tipe' => 'Vengeance RGB 32GB DDR5', 'harga' => 114.99, 'status' => 'Tersedia'],
+            ['merk' => 'Kingston', 'tipe' => 'Fury Beast 16GB DDR4', 'harga' => 45.20, 'status' => 'Tersedia'],
+        ];
+
+        return ($type == 'ssd') ? $ssd : $ram;
     }
 }
