@@ -15,7 +15,7 @@ class HardwareController extends Controller
         $type = $request->query('type', 'ssd');
         $apiKey = $request->header('X-BIAN-KEY');
 
-        // 1. Validasi & Hitung Penggunaan
+        // 1. Validasi & Catat Limit
         if ($apiKey) {
             $user = DB::table('api_developers')->where('api_key', $apiKey)->first();
             if ($user) {
@@ -23,15 +23,15 @@ class HardwareController extends Controller
             }
         }
 
-        // 2. Caching Data Asli (Bukan Simulasi) selama 30 menit
-        $data = Cache::remember('hardware_live_prices_' . $type, 1800, function () use ($type) {
-            return $this->fetchFromLiveMarket($type);
+        // 2. Cache Data selama 1 Jam agar tidak boros kuota RapidAPI
+        $data = Cache::remember('hardware_live_prices_' . $type, 3600, function () use ($type) {
+            return $this->fetchFromEbay($type);
         });
 
         if (!$data) {
             return response()->json([
                 'status' => 503,
-                'message' => 'Semua sumber data global sedang sibuk. Silakan coba 1 menit lagi.'
+                'message' => 'Gagal sinkronisasi dengan Global Market. Coba lagi nanti.'
             ], 503);
         }
 
@@ -44,51 +44,42 @@ class HardwareController extends Controller
                 'data' => $data
             ],
             'server_info' => [
-                'last_update' => now()->toDateTimeString(),
-                'limit_info' => $apiKey ? '100/min (Premium)' : '5/min (Free)'
+                'source' => 'Ebay Global Market (Live)',
+                'last_update' => now()->toDateTimeString()
             ]
         ]);
     }
 
-    private function fetchFromLiveMarket($type)
+    private function fetchFromEbay($type)
     {
-        // SUMBER UTAMA: Hardware Tracker Global
-        $sources = [
-            "https://api.free-hardware-index.com/v1/market", // Contoh API Alternatif
-            "https://pc-parts-tracker.p.rapidapi.com/metadata" // Sumber cadangan
-        ];
+        try {
+            // Menggunakan Endpoint & Key dari gambar Anda
+            $response = Http::withHeaders([
+                'x-rapidapi-host' => 'ebay-search-result.p.rapidapi.com',
+                'x-rapidapi-key'  => '6a58292612mshe506626c4ddd9c8p131e33jsn96ed4840e98b' 
+            ])->timeout(15)->get('https://ebay-search-result.p.rapidapi.com/search', [
+                'keyword' => $type . ' nvme ssd brand new', // Pencarian lebih spesifik
+            ]);
 
-        foreach ($sources as $url) {
-            try {
-                $response = Http::timeout(5)->get($url, [
-                    'q' => $type,
-                    'limit' => 10
-                ]);
+            if ($response->successful()) {
+                $raw = $response->json()['results'] ?? [];
+                $maskedData = [];
 
-                if ($response->successful()) {
-                    $items = $response->json()['items'] ?? $response->json();
-                    return $this->maskingData($items);
+                // Ambil 10 item pertama dan lakukan Masking
+                foreach (array_slice($raw, 0, 10) as $item) {
+                    $maskedData[] = [
+                        'nama_produk' => $item['title'] ?? 'Hardware Item',
+                        'harga_raw'   => $item['price'] ?? '0.00',
+                        'pengiriman'  => $item['shipping'] ?? 'N/A',
+                        'lokasi'      => $item['location'] ?? 'Global',
+                        'gambar'      => $item['image'] ?? null
+                    ];
                 }
-            } catch (\Exception $e) {
-                continue; // Coba sumber berikutnya jika satu gagal
+                return $maskedData;
             }
+        } catch (\Exception $e) {
+            return null;
         }
-
         return null;
-    }
-
-    private function maskingData($rawData)
-    {
-        $cleanData = [];
-        // Memetakan data asli ke format BIAN API agar identitas sumber asli hilang
-        foreach (array_slice($rawData, 0, 10) as $item) {
-            $cleanData[] = [
-                'merk' => $item['brand'] ?? $item['manufacturer'] ?? 'Generic',
-                'tipe' => $item['name'] ?? $item['model'] ?? 'Hardware Component',
-                'harga' => $item['price'] ?? $item['current_price'] ?? 0.00,
-                'status_stok' => 'Instock'
-            ];
-        }
-        return $cleanData;
     }
 }
