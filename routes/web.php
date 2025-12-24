@@ -45,6 +45,8 @@ Route::post('/v1/register', [AuthController::class, 'register']);
 Route::post('/v1/login', [AuthController::class, 'login']);
 Route::get('/v1/logout', [AuthController::class, 'logout']);
 
+Route::post('/v1/verify-action', [AuthController::class, 'verifyAction']);
+
 // Fitur Revoke Key (Ganti API Key baru)
 Route::post('/v1/revoke-key', [AuthController::class, 'revokeKey']);
 
