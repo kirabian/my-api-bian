@@ -95,7 +95,6 @@
             <div class="flex space-x-8">
                 <span>SUPPORTERS</span>
                 <span class="text-white">BIAN</span>
-                <span class="text-white">AARON</span>
             </div>
             <div>
                 POWERED BY <span class="text-pink-500">LARAVEL v10</span>
