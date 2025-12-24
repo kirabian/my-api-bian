@@ -1,75 +1,129 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <title>Bian API - Documentation</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bian API - Most Active Open Source API</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .code-block { background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 10px; font-family: monospace; }
+        body { background-color: #0b0e14; color: #ffffff; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .gradient-text { background: linear-gradient(90deg, #ff69b4, #00d2ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     </style>
 </head>
-<body class="bg-gray-50 flex flex-col min-h-screen">
+<body class="font-sans">
 
-    <nav class="bg-white border-b px-6 py-4 flex justify-between items-center sticky top-0 z-50">
-        <div class="flex items-center gap-2">
-            <div class="bg-pink-500 p-2 rounded-lg text-white"><i class="fas fa-rocket"></i></div>
-            <span class="text-xl font-bold text-gray-800">BIAN <span class="text-pink-500">API</span></span>
+    <nav class="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
+        <div class="text-2xl font-bold tracking-tighter">
+            BIAN <span class="text-blue-500 italic">API</span>
         </div>
-        <div class="flex gap-4">
+        <div class="hidden md:flex space-x-8 text-sm font-medium text-gray-400">
+            <a href="#docs" class="hover:text-white transition">Documentation <span class="text-xs align-top">v1</span></a>
+            <a href="#" class="hover:text-white transition">Features</a>
+            <a href="#" class="hover:text-white transition">How it works</a>
+        </div>
+        <div class="flex items-center space-x-4">
             @if($user)
-                <a href="/dashboard" class="text-gray-600 font-medium py-2">Dashboard</a>
-                <a href="/v1/logout" class="bg-red-500 text-white px-5 py-2 rounded-full font-bold">Logout</a>
+                <a href="/dashboard" class="text-sm font-bold border border-white/20 px-6 py-2 rounded-lg hover:bg-white hover:text-black transition">DASHBOARD</a>
             @else
-                <a href="/v1/login-page" class="text-pink-500 border border-pink-500 px-5 py-2 rounded-full font-bold hover:bg-pink-50">Login</a>
-                <a href="/v1/register-page" class="bg-pink-500 text-white px-5 py-2 rounded-full font-bold hover:bg-pink-600 shadow-lg shadow-pink-200">Register</a>
+                <a href="/v1/login-page" class="text-sm font-medium hover:text-pink-500 transition">Login</a>
+                <a href="/v1/register-page" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-bold shadow-lg shadow-blue-900/50 transition">Get Started</a>
             @endif
         </div>
     </nav>
 
-    <div class="flex flex-1">
-        <aside class="w-64 bg-white border-r p-6 hidden md:block">
-            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">Endpoints</h3>
-            <ul class="space-y-2">
-                <li><a href="#users" class="flex items-center gap-3 p-2 bg-pink-50 text-pink-600 rounded-lg font-medium"><i class="fas fa-users"></i> Get Users</a></li>
-                <li class="opacity-50 italic text-sm p-2"><i class="fas fa-lock"></i> More coming soon...</li>
-            </ul>
-        </aside>
+    <main class="max-w-7xl mx-auto px-8 py-20 flex flex-col lg:flex-row items-center gap-12">
+        
+        <div class="flex-1 space-y-8">
+            <div class="inline-block px-4 py-1 rounded-full border border-pink-500/30 text-pink-500 text-xs font-bold bg-pink-500/10">
+                🚀 WE RELY ON YOUR SUPPORT
+            </div>
+            
+            <h1 class="text-7xl font-black tracking-tighter leading-none">
+                Bian <span class="gradient-text">API</span>
+            </h1>
+            
+            <p class="text-gray-400 text-lg max-w-lg leading-relaxed">
+                Bian API adalah penyedia data terbuka (Open Source) untuk komunitas pengembang. 
+                Cepat, aman, dan mudah diintegrasikan. — <span class="italic">By BianDev.</span>
+            </p>
 
-        <main class="flex-1 p-8">
-            <section id="users">
-                <div class="flex items-center gap-3 mb-4">
-                    <span class="bg-green-500 text-white px-3 py-1 rounded text-sm font-bold">GET</span>
-                    <h2 class="text-2xl font-bold text-gray-800">Fetch Users List</h2>
-                </div>
-                <p class="text-gray-600 mb-6">Endpoint ini digunakan untuk mengambil data seluruh user yang terdaftar dalam sistem.</p>
-                
-                <div class="bg-gray-200 p-3 rounded-lg font-mono text-sm mb-6 flex justify-between items-center">
-                    <span>https://my-api-bian.absenps.com/v1/users</span>
-                    <span class="text-xs bg-gray-300 px-2 py-1 rounded">Rate Limit: 5/min (Public)</span>
-                </div>
+            <div class="flex flex-wrap gap-3">
+                <span class="glass px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2">
+                    <i class="fas fa-server text-blue-400"></i> REST API
+                </span>
+                <span class="glass px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2">
+                    <i class="fas fa-bolt text-yellow-400"></i> AUTH-LESS
+                </span>
+                <span class="glass px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2">
+                    <i class="fas fa-users text-pink-400"></i> 15+ INTEGRATIONS
+                </span>
+                <span class="glass px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2">
+                    <i class="fas fa-chart-line text-green-400"></i> 100K+ REQUESTS / MONTH
+                </span>
+            </div>
 
-                <h3 class="font-bold mb-3 text-gray-700">Example Usage</h3>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div>
-                        <p class="text-sm font-semibold text-gray-500 mb-2">JavaScript (Fetch)</p>
-                        <div class="code-block text-xs">
-                            fetch('https://my-api-bian.absenps.com/v1/users')<br>
-                            .then(res => res.json())<br>
-                            .then(data => console.log(data));
-                        </div>
+            <div class="flex gap-4 pt-4">
+                <button class="bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-xl font-bold transition">Learn more</button>
+                <button class="border border-white/20 hover:bg-white/5 px-8 py-3 rounded-xl font-bold transition flex items-center gap-2">
+                    <i class="fas fa-arrow-right text-xs"></i> Get started
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-1 w-full lg:max-w-xl">
+            <div class="glass rounded-3xl overflow-hidden shadow-2xl">
+                <div class="bg-white/5 px-6 py-4 flex items-center justify-between border-b border-white/10">
+                    <div class="flex items-center gap-2 text-xs font-bold text-green-400">
+                        <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> GET
+                        <span class="text-gray-400">https://my-api-bian.absenps.com/v1/users</span>
                     </div>
-                    <div>
-                        <p class="text-sm font-semibold text-gray-500 mb-2">Python (Requests)</p>
-                        <div class="code-block text-xs">
-                            import requests<br>
-                            response = requests.get('https://my-api-bian.absenps.com/v1/users')<br>
-                            print(response.json())
-                        </div>
-                    </div>
+                    <span class="text-xs text-gray-500">200 OK - 124ms</span>
                 </div>
-            </section>
-        </main>
-    </div>
+                <div class="p-6 font-mono text-xs text-blue-300 leading-relaxed overflow-x-auto">
+                    <pre>
+{
+  "status": "success",
+  "data": [
+    {
+      "id": 1,
+      "username": "bian_dev",
+      "role": "admin",
+      "status": "active"
+    },
+    {
+      "id": 2,
+      "username": "member_01",
+      "role": "user",
+      "status": "active"
+    }
+  ]
+}</pre>
+                </div>
+            </div>
+            
+            <div class="mt-6 flex justify-center gap-4">
+                <div class="w-24 h-32 glass rounded-2xl animate-bounce" style="animation-duration: 3s;"></div>
+                <div class="w-24 h-32 glass rounded-2xl animate-bounce" style="animation-duration: 4s;"></div>
+                <div class="w-24 h-32 glass rounded-2xl animate-bounce" style="animation-duration: 5s;"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-auto border-t border-white/5 py-8">
+        <div class="max-w-7xl mx-auto px-8 flex flex-wrap justify-between items-center text-[10px] uppercase tracking-widest text-gray-500 font-bold">
+            <div class="flex space-x-8">
+                <span>SUPPORTERS</span>
+                <span class="text-white">AARON</span>
+                <span class="text-white">BOBBY</span>
+                <span class="text-white">BIAN</span>
+            </div>
+            <div>
+                BIAN'S DEVELOPMENT IS POWERED BY <span class="text-pink-500">LARAVEL</span>
+            </div>
+        </div>
+    </footer>
 
 </body>
 </html>
