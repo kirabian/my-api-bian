@@ -7,16 +7,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class HardwareController extends Controller
 {
     public function getPrices(Request $request)
     {
-        // Default ke 'ssd' jika tidak ada input
         $type = $request->query('type', 'ssd');
         $apiKey = $request->header('X-BIAN-KEY');
 
-        // 1. Validasi Limit
+        // 1. Validasi & Catat Penggunaan API Key
         if ($apiKey) {
             $user = DB::table('api_developers')->where('api_key', $apiKey)->first();
             if ($user) {
@@ -24,15 +24,16 @@ class HardwareController extends Controller
             }
         }
 
-        // 2. Caching Data (Bersihkan cache dulu di terminal sebelum tes)
-        $data = Cache::remember('hardware_live_fix_' . $type, 3600, function () use ($type) {
+        // 2. Caching Data Selama 1 Jam (Gunakan cache:clear untuk tes ulang)
+        $data = Cache::remember('hardware_live_final_' . $type, 3600, function () use ($type) {
             return $this->fetchFromEbay($type);
         });
 
         if (!$data) {
             return response()->json([
                 'status' => 503,
-                'message' => 'Gagal sinkronisasi data global. Cek kuota RapidAPI atau koneksi server.'
+                'message' => 'Gagal sinkronisasi data global. Cek kuota RapidAPI atau koneksi server.',
+                'debug_info' => 'Periksa storage/logs/laravel.log untuk detail error.'
             ], 503);
         }
 
@@ -42,10 +43,9 @@ class HardwareController extends Controller
             'result' => [
                 'kategori' => strtoupper($type),
                 'currency' => 'USD',
-                'items' => $data
+                'data' => $data
             ],
             'server_info' => [
-                'source' => 'RapidAPI Gateway (Live)',
                 'last_update' => now()->toDateTimeString()
             ]
         ]);
@@ -54,7 +54,7 @@ class HardwareController extends Controller
     private function fetchFromEbay($type)
     {
         try {
-            // PERBAIKAN: URL sekarang menggunakan path '/search/{keyword}' sesuai data cURL kamu
+            // URL Path dinamis berdasarkan input user
             $url = "https://ebay-search-result.p.rapidapi.com/search/" . urlencode($type);
 
             $response = Http::withHeaders([
@@ -65,10 +65,13 @@ class HardwareController extends Controller
             if ($response->successful()) {
                 $raw = $response->json();
                 
-                // Berdasarkan cURL, data biasanya ada di dalam key 'results'
+                // Menangani perbedaan struktur JSON (results vs array langsung)
                 $items = $raw['results'] ?? $raw;
                 
-                if (!is_array($items)) return null;
+                if (!is_array($items) || empty($items)) {
+                    Log::warning("API Response empty or not an array for type: $type");
+                    return null;
+                }
 
                 $maskedData = [];
                 foreach (array_slice($items, 0, 10) as $item) {
@@ -82,8 +85,12 @@ class HardwareController extends Controller
                 }
                 return $maskedData;
             }
+
+            // Catat error jika response tidak sukses
+            Log::error("RapidAPI Failure: " . $response->status() . " - " . $response->body());
+            
         } catch (\Exception $e) {
-            \Log::error("Ebay API Error: " . $e->getMessage());
+            Log::error("Ebay API Exception: " . $e->getMessage());
             return null;
         }
         return null;
