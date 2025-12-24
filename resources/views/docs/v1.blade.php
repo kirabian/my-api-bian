@@ -10,10 +10,10 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
         
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; }
         code, pre { font-family: 'JetBrains Mono', monospace; }
 
-        /* Syntax Highlighting */
+        /* Syntax Highlighting Colors */
         pre { background: #0d1117; color: #c9d1d9; padding: 1.5rem; border-radius: 1rem; overflow-x: auto; position: relative; border: 1px solid rgba(255,255,255,0.1); }
         .code-keyword { color: #ff7b72; } 
         .code-string { color: #a5d6ff; }  
@@ -29,6 +29,7 @@
             font-size: 11px; font-weight: 600; cursor: pointer; 
             transition: all 0.2s; z-index: 10;
         }
+        .copy-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
 
         /* Sidebar Styling */
         #sidebar { transition: all 0.3s ease-in-out; }
@@ -84,7 +85,7 @@
                 <ul class="space-y-4 text-sm font-medium nav-list">
                     <li><a href="#intro" class="sidebar-link block text-slate-500 py-1">Introduction</a></li>
                     <li><a href="#rate-limit" class="sidebar-link block text-slate-500 py-1">Rate Limiting</a></li>
-                    <li><a href="#how-to-use" class="sidebar-link block text-slate-500 py-1">Integrasi Key</a></li>
+                    <li><a href="#how-to-use" class="sidebar-link block text-slate-500 py-1 font-bold">Integrasi Key</a></li>
                 </ul>
             </div>
             <div>
@@ -92,6 +93,7 @@
                 <ul class="space-y-4 text-sm font-medium nav-list">
                     <li><a href="#users" class="sidebar-link block text-slate-500 py-1">Get Users List</a></li>
                     <li><a href="#prayer" class="sidebar-link block text-slate-500 py-1">Global Prayer Times</a></li>
+                    <li><a href="#hardware" class="sidebar-link block text-slate-500 py-1 font-bold">Hardware Prices</a></li>
                 </ul>
             </div>
         </nav>
@@ -99,29 +101,36 @@
         <main class="flex-1 p-6 md:p-12 lg:p-20 max-w-full overflow-hidden">
             
             <section id="intro" class="mb-20 scroll-mt-24">
+                <div class="inline-block px-4 py-1.5 bg-blue-50 text-blue-600 rounded-full text-[12px] font-bold mb-6">v1.0.0 Release</div>
                 <h1 class="text-4xl md:text-6xl font-extrabold mb-8 tracking-tighter">Solusi Data <span class="text-blue-600">Developer.</span></h1>
-                <p class="text-slate-500 text-base md:text-xl max-w-3xl leading-relaxed">Dokumentasi resmi integrasi Bian API. Mendukung berbagai bahasa pemrograman untuk kemudahan skalabilitas.</p>
+                <p class="text-slate-500 text-base md:text-xl max-w-3xl leading-relaxed">Dokumentasi resmi integrasi Bian API. Kami menyediakan layanan data yang cepat, aman, dan skalabel untuk kebutuhan pengembangan aplikasi Anda.</p>
             </section>
 
             <section id="rate-limit" class="mb-20 scroll-mt-24">
+                <h2 class="text-2xl font-extrabold mb-8 flex items-center gap-3">
+                    <span class="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white text-sm"><i class="fas fa-bolt"></i></span>
+                    Batas Penggunaan
+                </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Public Access</p>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Public Access (Tanpa Key)</p>
                         <p class="text-3xl font-black">5 <span class="text-xs font-normal text-slate-400">Req/Min</span></p>
                     </div>
                     <div class="bg-white p-8 rounded-[2rem] border-2 border-blue-600 shadow-xl shadow-blue-500/5">
-                        <p class="text-[10px] font-bold text-blue-600 uppercase mb-2">Member Access</p>
+                        <p class="text-[10px] font-bold text-blue-600 uppercase mb-2">Member Access (Pakai Key)</p>
                         <p class="text-4xl font-black text-slate-900 mb-2">100 <span class="text-sm font-medium text-slate-400">Req / Min</span></p>
                     </div>
                 </div>
             </section>
 
             <section id="how-to-use" class="mb-24 scroll-mt-24">
-                <h2 class="text-2xl font-extrabold mb-10 flex items-center gap-3"><i class="fas fa-code text-blue-600"></i> Code Integration</h2>
-                
+                <h2 class="text-2xl font-extrabold mb-10 flex items-center gap-3 text-slate-900">
+                    <span class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white text-sm"><i class="fas fa-key"></i></span>
+                    Integrasi API Key
+                </h2>
                 <div class="space-y-12">
                     <div>
-                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <p class="text-sm font-bold text-slate-700 mb-4 uppercase tracking-widest flex items-center gap-2">
                             <i class="fab fa-node-js text-green-600 text-lg"></i> Node.js (Axios)
                         </p>
                         <div class="relative group">
@@ -129,23 +138,30 @@
 <pre><code><span class="code-keyword">const</span> axios = <span class="code-keyword">require</span>(<span class="code-string">'axios'</span>);
 
 axios.<span class="code-function">get</span>(<span class="code-string">'https://my-api-bian.absenps.com/v1/prayer-times?city=Jakarta'</span>, {
-    <span class="code-attr">headers</span>: { <span class="code-string">'X-BIAN-KEY'</span>: <span class="code-string">'YOUR_API_KEY'</span> }
+    <span class="code-attr">headers</span>: { <span class="code-string">'X-BIAN-KEY'</span>: <span class="code-string">'YOUR_API_KEY_HERE'</span> }
 })
-.<span class="code-function">then</span>(res => console.<span class="code-function">log</span>(res.data));</code></pre>
+.<span class="code-function">then</span>(res => console.<span class="code-function">log</span>(res.data))
+.<span class="code-function">catch</span>(err => console.<span class="code-function">error</span>(err.response.data));</code></pre>
                         </div>
                     </div>
 
                     <div>
-                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <p class="text-sm font-bold text-slate-700 mb-4 uppercase tracking-widest flex items-center gap-2">
                             <i class="fab fa-php text-indigo-600 text-lg"></i> PHP (cURL)
                         </p>
                         <div class="relative group">
                             <button class="copy-btn" onclick="copyCode(this)"><i class="far fa-copy"></i> Copy</button>
-<pre><code><span class="code-variable">$apiKey</span> = <span class="code-string">"YOUR_KEY"</span>;
+<pre><code><span class="code-variable">$apiKey</span> = <span class="code-string">"YOUR_API_KEY_HERE"</span>;
 <span class="code-variable">$ch</span> = <span class="code-function">curl_init</span>(<span class="code-string">"https://my-api-bian.absenps.com/v1/prayer-times?city=Jakarta"</span>);
-<span class="code-function">curl_setopt</span>(<span class="code-variable">$ch</span>, CURLOPT_HTTPHEADER, [<span class="code-string">"X-BIAN-KEY: <span class="code-variable">$apiKey</span>"</span>]);
+
+<span class="code-function">curl_setopt</span>(<span class="code-variable">$ch</span>, CURLOPT_HTTPHEADER, [
+    <span class="code-string">"X-BIAN-KEY: <span class="code-variable">$apiKey</span>"</span>,
+    <span class="code-string">"Content-Type: application/json"</span>
+]);
 <span class="code-function">curl_setopt</span>(<span class="code-variable">$ch</span>, CURLOPT_RETURNTRANSFER, <span class="code-keyword">true</span>);
+
 <span class="code-variable">$response</span> = <span class="code-function">curl_exec</span>(<span class="code-variable">$ch</span>);
+<span class="code-function">curl_close</span>(<span class="code-variable">$ch</span>);
 <span class="code-function">echo</span> <span class="code-variable">$response</span>;</code></pre>
                         </div>
                     </div>
@@ -157,7 +173,6 @@ axios.<span class="code-function">get</span>(<span class="code-string">'https://
                     <span class="bg-emerald-500 text-white px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase">Get</span>
                     <h2 class="text-2xl font-extrabold tracking-tight">Get Users List</h2>
                 </div>
-                <p class="text-slate-500 mb-8 leading-relaxed">Mengambil daftar pengembang terdaftar pada sistem Bian API.</p>
                 <div class="bg-slate-900 p-5 rounded-2xl mb-8 flex items-center justify-between border border-white/5 overflow-x-auto">
                     <code class="text-blue-400 font-medium text-xs md:text-sm whitespace-nowrap">https://my-api-bian.absenps.com/v1/users</code>
                 </div>
@@ -177,8 +192,8 @@ axios.<span class="code-function">get</span>(<span class="code-string">'https://
                     <span class="bg-emerald-500 text-white px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase">Get</span>
                     <h2 class="text-2xl font-extrabold tracking-tight text-slate-900">Global Prayer Times</h2>
                 </div>
-                <div class="bg-slate-900 p-5 rounded-2xl mb-8 flex items-center justify-between overflow-x-auto border border-white/5 group">
-                    <code class="text-blue-400 font-medium text-xs md:text-sm whitespace-nowrap">https://my-api-bian.absenps.com/v1/prayer-times?city=Samarinda&country=Indonesia</code>
+                <div class="bg-slate-900 p-5 rounded-2xl mb-8 flex items-center justify-between overflow-x-auto border border-white/5">
+                    <code class="text-blue-400 font-medium text-xs md:text-sm whitespace-nowrap">https://my-api-bian.absenps.com/v1/prayer-times?city=Samarinda</code>
                 </div>
                 <div class="relative group">
                     <button class="copy-btn" onclick="copyCode(this)"><i class="far fa-copy"></i> Copy</button>
@@ -187,10 +202,32 @@ axios.<span class="code-function">get</span>(<span class="code-string">'https://
   <span class="code-attr">"creator"</span>: <span class="code-string">"BIAN STUDIO"</span>,
   <span class="code-attr">"result"</span>: {
     <span class="code-attr">"jadwal"</span>: { 
-      <span class="code-attr">"subuh"</span>: <span class="code-string">"04:12"</span>, 
-      <span class="code-attr">"dzuhur"</span>: <span class="code-string">"11:51"</span>,
-      <span class="code-attr">"maghrib"</span>: <span class="code-string">"18:05"</span>
+      <span class="code-attr">"subuh"</span>: <span class="code-string">"04:45"</span>, 
+      <span class="code-attr">"dzuhur"</span>: <span class="code-string">"12:12"</span>,
+      <span class="code-attr">"maghrib"</span>: <span class="code-string">"18:18"</span>
     }
+  }
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="hardware" class="mb-24 scroll-mt-28 p-12 bg-white rounded-[3rem] border border-slate-200 relative overflow-hidden">
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="bg-blue-600 text-white px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase">Get</span>
+                    <h2 class="text-2xl font-extrabold tracking-tight text-slate-900">Real-Time Hardware Prices</h2>
+                </div>
+                <div class="bg-slate-900 p-5 rounded-2xl mb-8 flex items-center justify-between overflow-x-auto border border-white/5">
+                    <code class="text-blue-400 font-medium text-xs md:text-sm whitespace-nowrap">https://my-api-bian.absenps.com/v1/hardware/prices?type=ssd</code>
+                </div>
+                <div class="relative group">
+                    <button class="copy-btn" onclick="copyCode(this)"><i class="far fa-copy"></i> Copy</button>
+<pre><code>{
+  <span class="code-attr">"status"</span>: <span class="code-keyword">200</span>,
+  <span class="code-attr">"result"</span>: {
+    <span class="code-attr">"kategori"</span>: <span class="code-string">"SSD"</span>,
+    <span class="code-attr">"data"</span>: [
+      { <span class="code-attr">"merk"</span>: <span class="code-string">"Samsung"</span>, <span class="code-attr">"tipe"</span>: <span class="code-string">"990 Pro 1TB"</span>, <span class="code-attr">"harga"</span>: <span class="code-keyword">119.99</span> }
+    ]
   }
 }</code></pre>
                 </div>
@@ -210,7 +247,7 @@ axios.<span class="code-function">get</span>(<span class="code-string">'https://
 
         overlay.addEventListener('click', toggleSidebar);
 
-        // Sidebar active monitoring
+        // Sidebar active monitoring logic
         window.addEventListener('scroll', () => {
             const sections = document.querySelectorAll('section');
             const navLinks = document.querySelectorAll('.sidebar-link');
@@ -218,7 +255,7 @@ axios.<span class="code-function">get</span>(<span class="code-string">'https://
             let current = '';
             sections.forEach(section => {
                 const sectionTop = section.offsetTop;
-                if (pageYOffset >= sectionTop - 120) {
+                if (pageYOffset >= sectionTop - 150) {
                     current = section.getAttribute('id');
                 }
             });

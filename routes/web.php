@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Api\PrayerController;
+use App\Http\Controllers\Api\HardwareController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,23 +20,24 @@ use App\Http\Controllers\Api\PrayerController;
 */
 
 RateLimiter::for('api-limiter', function (Request $request) {
-    // Cek Header API Key
+    // 1. Cek Header API Key (Prioritas Utama)
     $apiKey = $request->header('X-BIAN-KEY');
     
     if ($apiKey) {
         $user = DB::table('api_developers')->where('api_key', $apiKey)->first();
         if ($user) {
+            // Member Premium: 100 Req / Min
             return Limit::perMinute(100)->by($user->id);
         }
     }
 
-    // Cek Session User
+    // 2. Cek Session User (Jika login via Web)
     $userId = session('user_id');
     if ($userId) {
         return Limit::perMinute(100)->by($userId);
     }
 
-    // Default Public Limit
+    // 3. Default Public Limit: 5 Req / Min
     return Limit::perMinute(5)->by($request->ip());
 });
 
@@ -69,7 +71,7 @@ Route::get('/v1/register-page', function () {
     return view('auth.register');
 });
 
-// Dashboard Protected
+// Route Dashboard
 Route::get('/dashboard', [DashboardController::class, 'index']);
 
 /*
@@ -81,4 +83,5 @@ Route::get('/dashboard', [DashboardController::class, 'index']);
 Route::middleware(['throttle:api-limiter'])->group(function () {
     Route::get('/v1/users', [UserController::class, 'index']);
     Route::get('/v1/prayer-times', [PrayerController::class, 'getTimes']);
+    Route::get('/v1/hardware/prices', [HardwareController::class, 'getPrices']);
 });
