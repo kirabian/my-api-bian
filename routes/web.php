@@ -80,6 +80,9 @@ Route::get('/dashboard', [DashboardController::class, 'index']);
 |--------------------------------------------------------------------------
 */
 
+// ROUTE WAJIB: Agar link pendek Bian bisa bekerja
+Route::get('/go/{code}', [ToolsController::class, 'handleRedirect']);
+
 Route::middleware(['throttle:api-limiter'])->group(function () {
     Route::get('/v1/users', [UserController::class, 'index']);
     Route::get('/v1/prayer-times', [PrayerController::class, 'getTimes']);
@@ -89,7 +92,5 @@ Route::middleware(['throttle:api-limiter'])->group(function () {
     // Endpoints Tools
     Route::get('/v1/tools/shorten', [ToolsController::class, 'shortenUrl']);
     Route::get('/v1/tools/ssweb', [ToolsController::class, 'screenshotWeb']);
-    
-    // Proxy Gambar Baru - Menggunakan Path Parameter agar tidak tertukar
     Route::get('/v1/tools/ssweb/view/{encodedUrl}/image.jpg', [ToolsController::class, 'getScreenshotImage']);
 });

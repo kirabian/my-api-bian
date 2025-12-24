@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Http;
 
 class ToolsController extends Controller
 {
-    // 1. URL Shortener
+    // 1. URL Shortener (Generate Link)
     public function shortenUrl(Request $request)
     {
         $url = $request->input('url');
@@ -17,28 +17,40 @@ class ToolsController extends Controller
         try {
             $response = Http::get("https://tinyurl.com/api-create.php?url=" . urlencode($url));
             $short = $response->body();
-            $customShort = str_replace('tinyurl.com', 'my-api-bian.absenps.com/go', $short);
+            
+            // Mengambil kode unik di ujung link (misal: mbq3m)
+            $code = str_replace('https://tinyurl.com/', '', $short);
+            
+            // Link baru menggunakan domain Bian API
+            $customShort = url("/go/{$code}");
 
             return response()->json([
                 'status' => 200,
                 'creator' => 'BIAN DEVELOPER STUDIO',
-                'result' => ['original' => $url, 'short' => $customShort]
+                'result' => [
+                    'original' => $url,
+                    'short' => $customShort
+                ]
             ]);
         } catch (\Exception $e) {
             return response()->json(['status' => 500, 'message' => 'Gagal memproses'], 500);
         }
     }
 
-    // 2. Website Screenshot JSON (Versi FIX Base64)
+    // 2. Fungsi Eksekusi Redirect (Agar link /go/ bisa dibuka)
+    public function handleRedirect($code)
+    {
+        // Mengembalikan link ke TinyURL asli di latar belakang agar user dipindahkan
+        return redirect()->away("https://tinyurl.com/{$code}");
+    }
+
+    // 3. Website Screenshot JSON
     public function screenshotWeb(Request $request)
     {
         $url = $request->input('url');
         if (!$url) return response()->json(['status' => 400, 'message' => 'URL wajib diisi'], 400);
 
-        // Ubah URL target menjadi Base64 agar aman dibaca server
         $encodedUrl = base64_encode($url);
-        
-        // Link gambar sekarang menggunakan path parameter, bukan query string lagi
         $maskedImageUrl = url("/v1/tools/ssweb/view/{$encodedUrl}/image.jpg");
 
         return response()->json([
@@ -51,18 +63,11 @@ class ToolsController extends Controller
         ]);
     }
 
-    // 3. Proxy Gambar Screenshot - FIX TOTAL 100%
+    // 4. Proxy Gambar Screenshot
     public function getScreenshotImage($encodedUrl)
     {
         try {
-            // Dekode kembali URL aslinya
             $targetUrl = base64_decode($encodedUrl);
-
-            if (!filter_var($targetUrl, FILTER_VALIDATE_URL)) {
-                return response()->json(['message' => 'Format URL tidak valid setelah dekode'], 400);
-            }
-
-            // Gunakan engine s-shot.ru
             $externalUrl = "https://api.s-shot.ru/1024x768/JPEG/1024/Z100/?" . $targetUrl;
             
             $imageResponse = Http::timeout(50)->get($externalUrl);
@@ -71,9 +76,9 @@ class ToolsController extends Controller
                 return response($imageResponse->body())->header('Content-Type', 'image/jpeg');
             }
             
-            return response()->json(['message' => 'Engine sibuk, coba lagi nanti'], 503);
+            return response()->json(['message' => 'Engine sibuk'], 503);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
+            return response()->json(['message' => 'Error'], 500);
         }
     }
 }
