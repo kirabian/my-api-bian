@@ -15,7 +15,7 @@ class HardwareController extends Controller
         $type = $request->query('type', 'ssd');
         $apiKey = $request->header('X-BIAN-KEY');
 
-        // 1. Validasi Limit
+        // 1. Validasi & Hitung Penggunaan
         if ($apiKey) {
             $user = DB::table('api_developers')->where('api_key', $apiKey)->first();
             if ($user) {
@@ -23,23 +23,17 @@ class HardwareController extends Controller
             }
         }
 
-        // 2. Caching dengan Logika Fallback Pintar
-        $data = Cache::remember('hardware_prices_smart_' . $type, 3600, function () use ($type) {
-            $realData = $this->scrapeRealPrice($type);
-
-            // Jika gagal ambil data asli (kosong atau error), gunakan data cadangan
-            if (empty($realData)) {
-                return [
-                    'source_type' => 'SIMULATED_DATA_FALLBACK',
-                    'items' => $this->getFallbackData($type)
-                ];
-            }
-
-            return [
-                'source_type' => 'REALTIME_GLOBAL_MARKET',
-                'items' => $realData
-            ];
+        // 2. Caching Data Asli (Bukan Simulasi) selama 30 menit
+        $data = Cache::remember('hardware_live_prices_' . $type, 1800, function () use ($type) {
+            return $this->fetchFromLiveMarket($type);
         });
+
+        if (!$data) {
+            return response()->json([
+                'status' => 503,
+                'message' => 'Semua sumber data global sedang sibuk. Silakan coba 1 menit lagi.'
+            ], 503);
+        }
 
         return response()->json([
             'status' => 200,
@@ -47,8 +41,7 @@ class HardwareController extends Controller
             'result' => [
                 'kategori' => strtoupper($type),
                 'currency' => 'USD',
-                'source' => $data['source_type'],
-                'data' => $data['items']
+                'data' => $data
             ],
             'server_info' => [
                 'last_update' => now()->toDateTimeString(),
@@ -57,50 +50,45 @@ class HardwareController extends Controller
         ]);
     }
 
-    private function scrapeRealPrice($type)
+    private function fetchFromLiveMarket($type)
     {
-        try {
-            // Kita coba akses API luar dengan timeout singkat (3 detik)
-            $response = Http::timeout(3)->get("https://api.pangoly.com/v1/products", [
-                'category' => ($type == 'ssd') ? 'ssd' : 'ram',
-                'limit' => 10
-            ]);
+        // SUMBER UTAMA: Hardware Tracker Global
+        $sources = [
+            "https://api.free-hardware-index.com/v1/market", // Contoh API Alternatif
+            "https://pc-parts-tracker.p.rapidapi.com/metadata" // Sumber cadangan
+        ];
 
-            if ($response->successful()) {
-                $products = $response->json()['data'] ?? [];
-                $maskedData = [];
+        foreach ($sources as $url) {
+            try {
+                $response = Http::timeout(5)->get($url, [
+                    'q' => $type,
+                    'limit' => 10
+                ]);
 
-                foreach ($products as $item) {
-                    $maskedData[] = [
-                        'merk' => $item['brand'] ?? 'Unknown',
-                        'tipe' => $item['name'] ?? 'Component',
-                        'harga' => $item['price'] ?? 0.00,
-                        'status' => 'Tersedia'
-                    ];
+                if ($response->successful()) {
+                    $items = $response->json()['items'] ?? $response->json();
+                    return $this->maskingData($items);
                 }
-                return $maskedData;
+            } catch (\Exception $e) {
+                continue; // Coba sumber berikutnya jika satu gagal
             }
-        } catch (\Exception $e) {
-            // Jika internet server mati, jangan kirim error, kembalikan null saja
-            return null;
         }
+
         return null;
     }
 
-    private function getFallbackData($type)
+    private function maskingData($rawData)
     {
-        // Data cadangan jika server Hostinger sedang bermasalah koneksinya
-        $ssd = [
-            ['merk' => 'Samsung', 'tipe' => '990 Pro 1TB NVMe', 'harga' => 119.99, 'status' => 'Tersedia'],
-            ['merk' => 'WD Black', 'tipe' => 'SN850X 1TB', 'harga' => 84.99, 'status' => 'Tersedia'],
-            ['merk' => 'Crucial', 'tipe' => 'P3 2TB NVMe', 'harga' => 98.50, 'status' => 'Tersedia'],
-        ];
-
-        $ram = [
-            ['merk' => 'Corsair', 'tipe' => 'Vengeance RGB 32GB DDR5', 'harga' => 114.99, 'status' => 'Tersedia'],
-            ['merk' => 'Kingston', 'tipe' => 'Fury Beast 16GB DDR4', 'harga' => 45.20, 'status' => 'Tersedia'],
-        ];
-
-        return ($type == 'ssd') ? $ssd : $ram;
+        $cleanData = [];
+        // Memetakan data asli ke format BIAN API agar identitas sumber asli hilang
+        foreach (array_slice($rawData, 0, 10) as $item) {
+            $cleanData[] = [
+                'merk' => $item['brand'] ?? $item['manufacturer'] ?? 'Generic',
+                'tipe' => $item['name'] ?? $item['model'] ?? 'Hardware Component',
+                'harga' => $item['price'] ?? $item['current_price'] ?? 0.00,
+                'status_stok' => 'Instock'
+            ];
+        }
+        return $cleanData;
     }
 }
