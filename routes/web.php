@@ -10,19 +10,37 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\Api\PrayerController;
 
 /*
 |--------------------------------------------------------------------------
 | Rate Limiter Configuration
 |--------------------------------------------------------------------------
+| Diperbarui untuk mendukung pengecekan API Key lewat Header (X-BIAN-KEY)
+| Jika ada API Key valid: 100 Req/Min
+| Jika tidak ada atau tidak valid: 5 Req/Min
 */
 
 RateLimiter::for('api-limiter', function (Request $request) {
+    // 1. Cek apakah ada API Key di Header (X-BIAN-KEY)
+    $apiKey = $request->header('X-BIAN-KEY');
+    
+    if ($apiKey) {
+        $user = DB::table('api_developers')->where('api_key', $apiKey)->first();
+        if ($user) {
+            // User Terdaftar & Valid: Beri 100 limit
+            return Limit::perMinute(100)->by($user->id);
+        }
+    }
+
+    // 2. Jika tidak ada Header, cek Session (untuk akses Dashboard/Web)
     $userId = session('user_id');
-    // Batasi limit publik agar tidak cepat habis saat terjadi loop redirect
-    return $userId 
-        ? Limit::perMinute(100)->by($userId)
-        : Limit::perMinute(5)->by($request->ip());
+    if ($userId) {
+        return Limit::perMinute(100)->by($userId);
+    }
+
+    // 3. User Publik (Tanpa Key & Tanpa Login): 5 limit per IP
+    return Limit::perMinute(5)->by($request->ip());
 });
 
 /*
@@ -62,10 +80,14 @@ Route::get('/dashboard', [DashboardController::class, 'index']);
 
 /*
 |--------------------------------------------------------------------------
-| API Endpoints (Dengan Rate Limiting)
+| API Endpoints (Dengan Rate Limiting Hybrid)
 |--------------------------------------------------------------------------
 */
 
 Route::middleware(['throttle:api-limiter'])->group(function () {
+    // API User List
     Route::get('/v1/users', [UserController::class, 'index']);
+    
+    // API Jadwal Sholat (Global)
+    Route::get('/v1/prayer-times', [PrayerController::class, 'getTimes']);
 });
