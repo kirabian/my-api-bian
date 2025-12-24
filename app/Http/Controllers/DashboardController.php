@@ -9,26 +9,30 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // 1. Cek session. Jika tidak ada, lempar ke halaman login
-        if (!session('user_id')) {
+        // Ambil data user dari session jika ada
+        $userId = session('user_id');
+        $user = null;
+
+        if ($userId) {
+            $user = DB::table('api_developers')->where('id', $userId)->first();
+        }
+
+        // Cek apakah request datang dari halaman utama atau folder /dashboard
+        // Jika URL adalah dashboard tapi belum login, lempar ke login
+        if (request()->is('dashboard') && !$user) {
             return redirect('/v1/login-page');
         }
 
-        // 2. Ambil data user
-        $user = DB::table('api_developers')->where('id', session('user_id'))->first();
-        
-        // Jaga-jaga jika session ada tapi data di DB dihapus
-        if (!$user) {
-            session()->flush();
-            return redirect('/v1/login-page');
+        // Jika URL adalah dashboard dan sudah login, arahkan ke view dashboard sesuai role
+        if (request()->is('dashboard') && $user) {
+            if ($user->role === 'admin') {
+                $allUsers = DB::table('api_developers')->get();
+                return view('dashboard.admin', compact('user', 'allUsers'));
+            }
+            return view('dashboard.user', compact('user'));
         }
 
-        // 3. Tampilkan halaman berdasarkan role
-        if ($user->role === 'admin') {
-            $allUsers = DB::table('api_developers')->get();
-            return view('dashboard.admin', compact('user', 'allUsers'));
-        }
-
-        return view('dashboard.user', compact('user'));
+        // Jika URL adalah halaman utama (welcome), tampilkan saja tanpa paksa login
+        return view('welcome', compact('user'));
     }
 }

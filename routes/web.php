@@ -6,9 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 
 // Halaman Utama / Landing Page
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [DashboardController::class, 'index']);
 
 // Auth Routes
 Route::post('/v1/register', [AuthController::class, 'register']);
