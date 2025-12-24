@@ -31,7 +31,7 @@ RateLimiter::for('api-limiter', function (Request $request) {
 |--------------------------------------------------------------------------
 */
 
-// Halaman Utama / Landing Page
+// Halaman Utama / Landing Page (Bisa diakses tanpa login)
 Route::get('/', [DashboardController::class, 'index']);
 
 // Halaman Dokumentasi API (Bisa diakses tanpa login)
@@ -40,12 +40,15 @@ Route::get('/docs/v1', function () {
     return view('docs.v1', compact('user'));
 });
 
-// ROUTE AUTH
+// ROUTE AUTH (Proses di balik layar)
 Route::post('/v1/register', [AuthController::class, 'register']);
 Route::post('/v1/login', [AuthController::class, 'login']);
 Route::get('/v1/logout', [AuthController::class, 'logout']);
 
-// HALAMAN LOGIN & REGISTER (Tampilan UI Web)
+// Fitur Revoke Key (Ganti API Key baru)
+Route::post('/v1/revoke-key', [AuthController::class, 'revokeKey']);
+
+// HALAMAN UI (Tampilan Form Login & Register)
 Route::get('/v1/login-page', function () {
     if (session('user_id')) return redirect('/dashboard');
     return view('auth.login');
@@ -55,7 +58,7 @@ Route::get('/v1/register-page', function () {
     return view('auth.register');
 });
 
-// ROUTE DASHBOARD (Proteksi login ada di dalam Controller)
+// ROUTE DASHBOARD (Proteksi login diproses di DashboardController)
 Route::get('/dashboard', [DashboardController::class, 'index']);
 
 /*
