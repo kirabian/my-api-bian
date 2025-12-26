@@ -48,6 +48,11 @@
         @media (max-width: 1024px) {
             #sidebar { width: 280px; z-index: 100; position: fixed; height: 100vh; top: 0; }
         }
+
+        /* Playground Styling */
+        .tester-panel { display: none; margin-bottom: 20px; padding: 20px; background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 1.5rem; }
+        .tester-panel.active { display: block; animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900">
@@ -140,17 +145,31 @@ axios.<span class="code-function">get</span>(<span class="code-string">'https://
             </section>
 
             <section id="users" class="mb-24 scroll-mt-24 p-8 md:p-12 bg-white rounded-[3rem] border border-slate-200 shadow-sm">
-                <div class="flex items-center gap-3 mb-6">
-                    <span class="bg-emerald-500 text-white px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase">Get</span>
-                    <h2 class="text-2xl font-extrabold tracking-tight text-slate-900">Get Users List</h2>
+                <div class="flex items-center justify-between gap-3 mb-6">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-emerald-500 text-white px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase">Get</span>
+                        <h2 class="text-2xl font-extrabold tracking-tight text-slate-900">Get Users List</h2>
+                    </div>
+                    <button onclick="toggleTest('users-tester')" class="text-xs font-bold px-4 py-2 rounded-full border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition">TRY IT</button>
                 </div>
+                
+                <div id="users-tester" class="tester-panel">
+                    <div class="flex flex-col gap-3">
+                        <input type="text" id="api_key_users" placeholder="X-BIAN-KEY (Optional)" class="p-3 rounded-xl border text-sm outline-none focus:border-blue-500">
+                        <button onclick="runTest('users')" class="bg-blue-600 text-white py-2 rounded-xl font-bold text-sm shadow-lg">Execute Request</button>
+                    </div>
+                </div>
+
                 <p class="text-slate-500 mb-8 leading-relaxed">Mengambil daftar pengembang terdaftar pada sistem Bian API.</p>
                 <div class="bg-slate-900 p-5 rounded-2xl mb-8 border border-white/5 overflow-x-auto">
                     <code class="text-blue-400 font-medium text-xs md:text-sm whitespace-nowrap">https://my-api-bian.absenps.com/v1/users</code>
                 </div>
                 <div class="relative group">
-                    <button class="copy-btn" onclick="copyCode(this)"><i class="far fa-copy"></i> Copy JSON</button>
-<pre><code>{
+                    <div class="absolute right-4 top-4 flex gap-2">
+                        <span id="users-status" class="hidden px-2 py-1 rounded bg-slate-800 text-[10px] text-emerald-400 font-bold"></span>
+                        <button class="copy-btn !static" onclick="copyCode(this)"><i class="far fa-copy"></i> Copy JSON</button>
+                    </div>
+<pre><code id="users-response">{
   <span class="code-attr">"status"</span>: <span class="code-string">"success"</span>,
   <span class="code-attr">"data"</span>: [
     { <span class="code-attr">"id"</span>: <span class="code-keyword">1</span>, <span class="code-attr">"username"</span>: <span class="code-string">"bian"</span>, <span class="code-attr">"role"</span>: <span class="code-string">"admin"</span> }
@@ -160,16 +179,31 @@ axios.<span class="code-function">get</span>(<span class="code-string">'https://
             </section>
 
             <section id="prayer" class="mb-24 scroll-mt-28 p-12 bg-white rounded-[3rem] border border-slate-200 relative overflow-hidden">
-                <div class="flex items-center gap-3 mb-6 text-slate-900">
-                    <span class="bg-emerald-500 text-white px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase">Get</span>
-                    <h2 class="text-2xl font-extrabold tracking-tight">Global Prayer Times</h2>
+                <div class="flex items-center justify-between gap-3 mb-6 text-slate-900">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-emerald-500 text-white px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase">Get</span>
+                        <h2 class="text-2xl font-extrabold tracking-tight">Global Prayer Times</h2>
+                    </div>
+                    <button onclick="toggleTest('prayer-tester')" class="text-xs font-bold px-4 py-2 rounded-full border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition">TRY IT</button>
                 </div>
+
+                <div id="prayer-tester" class="tester-panel">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                        <input type="text" id="prayer_city" placeholder="City (e.g Samarinda)" class="p-3 rounded-xl border text-sm outline-none">
+                        <input type="text" id="prayer_country" placeholder="Country (e.g Indonesia)" class="p-3 rounded-xl border text-sm outline-none">
+                    </div>
+                    <button onclick="runTest('prayer')" class="w-full bg-blue-600 text-white py-2 rounded-xl font-bold text-sm shadow-lg">Execute Request</button>
+                </div>
+
                 <div class="bg-slate-900 p-5 rounded-2xl mb-8 flex items-center justify-between overflow-x-auto border border-white/5 group">
                     <code class="text-blue-400 font-medium text-xs md:text-sm whitespace-nowrap">https://my-api-bian.absenps.com/v1/prayer-times?city=Samarinda&country=Indonesia</code>
                 </div>
                 <div class="relative group">
-                    <button class="copy-btn" onclick="copyCode(this)"><i class="far fa-copy"></i> Copy JSON</button>
-<pre><code>{
+                    <div class="absolute right-4 top-4 flex gap-2">
+                        <span id="prayer-status" class="hidden px-2 py-1 rounded bg-slate-800 text-[10px] text-emerald-400 font-bold"></span>
+                        <button class="copy-btn !static" onclick="copyCode(this)"><i class="far fa-copy"></i> Copy JSON</button>
+                    </div>
+<pre><code id="prayer-response">{
   <span class="code-attr">"status"</span>: <span class="code-keyword">200</span>,
   <span class="code-attr">"creator"</span>: <span class="code-string">"BIAN STUDIO"</span>,
   <span class="code-attr">"result"</span>: {
@@ -184,16 +218,22 @@ axios.<span class="code-function">get</span>(<span class="code-string">'https://
             </section>
 
             <section id="gempa" class="mb-24 scroll-mt-28 p-12 bg-white rounded-[3rem] border border-slate-200 relative overflow-hidden">
-                <div class="flex items-center gap-3 mb-6 text-slate-900">
-                    <span class="bg-emerald-500 text-white px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase">Get</span>
-                    <h2 class="text-2xl font-extrabold tracking-tight">Info Gempa BMKG</h2>
+                <div class="flex items-center justify-between gap-3 mb-6 text-slate-900">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-emerald-500 text-white px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase">Get</span>
+                        <h2 class="text-2xl font-extrabold tracking-tight">Info Gempa BMKG</h2>
+                    </div>
+                    <button onclick="runTest('gempa')" class="text-xs font-bold px-4 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition"><i class="fas fa-play mr-2"></i> FETCH LIVE</button>
                 </div>
                 <div class="bg-slate-900 p-5 rounded-2xl mb-8 flex items-center justify-between overflow-x-auto border border-white/5">
                     <code class="text-blue-400 font-medium text-xs md:text-sm whitespace-nowrap">https://my-api-bian.absenps.com/v1/info/gempa</code>
                 </div>
                 <div class="relative group">
-                    <button class="copy-btn" onclick="copyCode(this)"><i class="far fa-copy"></i> Copy JSON</button>
-<pre><code>{
+                    <div class="absolute right-4 top-4 flex gap-2">
+                        <span id="gempa-status" class="hidden px-2 py-1 rounded bg-slate-800 text-[10px] text-emerald-400 font-bold"></span>
+                        <button class="copy-btn !static" onclick="copyCode(this)"><i class="far fa-copy"></i> Copy JSON</button>
+                    </div>
+<pre><code id="gempa-response">{
   <span class="code-attr">"status"</span>: <span class="code-keyword">200</span>,
   <span class="code-attr">"creator"</span>: <span class="code-string">"BIAN DEVELOPER STUDIO"</span>,
   <span class="code-attr">"result"</span>: {
@@ -208,20 +248,36 @@ axios.<span class="code-function">get</span>(<span class="code-string">'https://
             </section>
 
             <section id="tools" class="mb-24 scroll-mt-28 p-12 bg-white rounded-[3rem] border border-slate-200 relative overflow-hidden">
-                <div class="flex items-center gap-3 mb-6 text-slate-900">
-                    <span class="bg-blue-600 text-white px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase text-xs">Get</span>
-                    <h2 class="text-2xl font-extrabold tracking-tight">Utility & Productivity Tools</h2>
+                <div class="flex items-center justify-between gap-3 mb-6 text-slate-900">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-blue-600 text-white px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase text-xs">Get</span>
+                        <h2 class="text-2xl font-extrabold tracking-tight">Utility & Productivity Tools</h2>
+                    </div>
                 </div>
                 
                 <div class="mb-14">
-                    <h3 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wider">1. URL Shortener</h3>
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wider">1. URL Shortener</h3>
+                        <button onclick="toggleTest('shorten-tester')" class="text-[10px] font-bold text-blue-600">TEST ENDPOINT</button>
+                    </div>
+
+                    <div id="shorten-tester" class="tester-panel">
+                        <div class="flex flex-col gap-3">
+                            <input type="text" id="shorten_url" placeholder="Enter long URL (e.g https://google.com)" class="p-3 rounded-xl border text-sm outline-none">
+                            <button onclick="runTest('shorten')" class="bg-blue-600 text-white py-2 rounded-xl font-bold text-sm">Shorten Now</button>
+                        </div>
+                    </div>
+
                     <p class="text-slate-500 text-sm mb-4">Mengubah tautan panjang menjadi link pendek resmi Bian API.</p>
                     <div class="bg-slate-900 p-5 rounded-2xl mb-4 border border-white/5 font-mono text-blue-400 text-sm whitespace-nowrap overflow-x-auto">
                         https://my-api-bian.absenps.com/v1/tools/shorten?url=https://google.com
                     </div>
                     <div class="relative group">
-                        <button class="copy-btn" onclick="copyCode(this)"><i class="far fa-copy"></i> Copy JSON</button>
-<pre><code>{
+                        <div class="absolute right-4 top-4 flex gap-2">
+                            <span id="shorten-status" class="hidden px-2 py-1 rounded bg-slate-800 text-[10px] text-emerald-400 font-bold"></span>
+                            <button class="copy-btn !static" onclick="copyCode(this)"><i class="far fa-copy"></i> Copy JSON</button>
+                        </div>
+<pre><code id="shorten-response">{
   <span class="code-attr">"status"</span>: <span class="code-keyword">200</span>,
   <span class="code-attr">"result"</span>: {
     <span class="code-attr">"original"</span>: <span class="code-string">"https://google.com"</span>,
@@ -287,7 +343,7 @@ axios.<span class="code-function">get</span>(<span class="code-string">'https://
 
         // Copy Code Function
         function copyCode(btn) {
-            const code = btn.parentElement.querySelector('code').innerText;
+            const code = btn.parentElement.parentElement.querySelector('code').innerText;
             navigator.clipboard.writeText(code).then(() => {
                 const original = btn.innerHTML;
                 btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
@@ -297,6 +353,55 @@ axios.<span class="code-function">get</span>(<span class="code-string">'https://
                     btn.style.color = '#8b949e';
                 }, 2000);
             });
+        }
+
+        // --- NEW SWAGGER-LIKE TESTER LOGIC ---
+        
+        function toggleTest(id) {
+            document.getElementById(id).classList.toggle('active');
+        }
+
+        async function runTest(type) {
+            let endpoint = '';
+            let config = { method: 'GET', headers: { 'Accept': 'application/json' } };
+            const responseCode = document.getElementById(`${type}-response`);
+            const statusLabel = document.getElementById(`${type}-status`);
+
+            // State Loading
+            responseCode.innerText = "// Loading data from Bian API...";
+            statusLabel.classList.remove('hidden');
+            statusLabel.innerText = "WAITING...";
+
+            try {
+                if (type === 'users') {
+                    endpoint = '/v1/users';
+                    const key = document.getElementById('api_key_users').value;
+                    if(key) config.headers['X-BIAN-KEY'] = key;
+                } 
+                else if (type === 'prayer') {
+                    const city = document.getElementById('prayer_city').value || 'Samarinda';
+                    const country = document.getElementById('prayer_country').value || 'Indonesia';
+                    endpoint = `/v1/prayer-times?city=${city}&country=${country}`;
+                }
+                else if (type === 'gempa') {
+                    endpoint = '/v1/info/gempa';
+                }
+                else if (type === 'shorten') {
+                    const longUrl = document.getElementById('shorten_url').value || 'https://google.com';
+                    endpoint = `/v1/tools/shorten?url=${encodeURIComponent(longUrl)}`;
+                }
+
+                const start = performance.now();
+                const res = await fetch(endpoint, config);
+                const end = performance.now();
+                const data = await res.json();
+
+                statusLabel.innerText = `${res.status} OK (${Math.round(end - start)}ms)`;
+                responseCode.innerText = JSON.stringify(data, null, 2);
+            } catch (err) {
+                statusLabel.innerText = "ERROR";
+                responseCode.innerText = "// Error connecting to API: " + err.message;
+            }
         }
     </script>
 </body>
